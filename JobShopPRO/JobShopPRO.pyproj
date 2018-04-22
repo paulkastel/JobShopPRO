@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>7ee04bf4-c6ac-4b14-8cbd-93fddf8b8a7f</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>JobShopPRO.py</StartupFile>
+    <StartupFile>root.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +21,40 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="clItinerary.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clMachine.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clTask.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="globalData.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="guiItinerary.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="guiItineraryNew.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="guiMachineEdit.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="guiMain.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="guiTaskNew.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="JobShopPRO.py" />
+    <Compile Include="root.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="guiMachine.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
