@@ -1,9 +1,10 @@
+from clTask import Task
 #=========================================================================================
 class Itinerary():
     """Itinerary is a list of ordered tasks """
 
     def __init__(self):
-        print("new object marszruty")
-        self.aaa = "test"
-
+        self.name = ""
+        self.itineraryChanged = False
+        self.tasksList = []
 

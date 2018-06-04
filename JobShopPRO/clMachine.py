@@ -2,7 +2,7 @@
 class Machine():
     """Machine in factory - properties"""
    
-    def __init__(self, aID):
+    def __init__(self, aID, aName):
         self.ID = aID
-        self.name = None
+        self.name = aName
 
