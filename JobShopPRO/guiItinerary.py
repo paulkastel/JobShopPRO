@@ -12,7 +12,7 @@ class GuiItinerary(form.Frame):
         form.Frame.__init__(self, master)
 
         master.title(STRGS['TITLE_ITINERARIES'])
-        master.geometry("%dx%d+%d+%d" % (400,400, int(master.winfo_screenwidth() / 2 - 400 / 2), int(master.winfo_screenheight() / 2 - 400 / 2)))
+        master.geometry("%dx%d+%d+%d" % (350,400, int(master.winfo_screenwidth() / 2 - 350 / 2), int(master.winfo_screenheight() / 2 - 400 / 2)))
         master.resizable(False, False)
 
         frItineraries = ttk.LabelFrame(master, text=STRGS['TITLE_ITINERARIES'])
@@ -36,7 +36,7 @@ class GuiItinerary(form.Frame):
         frItineraryDetail = ttk.LabelFrame(master, text=STRGS['DETAILS'])
         frItineraryDetail.grid(column=0, row=1, columnspan=2, padx=5, pady=5, sticky=form.W)
 
-        self.lblProperties = ttk.Label(frItineraryDetail, width=40)
+        self.lblProperties = ttk.Label(frItineraryDetail, width=50)
         self.lblProperties.grid(column=0, row=0, padx=3, pady=3)
 
     def addNewItinerary(self):
@@ -61,6 +61,8 @@ class GuiItinerary(form.Frame):
             self.lboxItierariesList.delete(0, form.END)
             for itinerary in itinerariesList:
                 self.lboxItierariesList.insert(form.END, itinerary.name)
+
+            #self.showDetailsItineraries()
         except IndexError:
             pass
 
@@ -78,6 +80,6 @@ class GuiItinerary(form.Frame):
             global itinerariesList
             index = self.lboxItierariesList.curselection()[0]
             selectedValue = itinerariesList[index].name
-            self.lblProperties.configure(text=selectedValue)
+            self.lblProperties.configure(text=selectedValue+", "+str(len(itinerariesList[index].tasksList))+" "+STRGS['TASKS_INITERARY'])
         except IndexError:
              self.lblProperties.configure(text="")

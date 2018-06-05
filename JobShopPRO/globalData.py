@@ -1,6 +1,6 @@
 from clMachine import Machine
 
-machinesList = [Machine(1, "M1"), Machine(1, "M2"), Machine(1, "M3")]
+machinesList = [Machine(0, "M1"), Machine(1, "M2"), Machine(2, "M3")]
 """All machines in factory"""
 
 itinerariesList = []

@@ -1,3 +1,5 @@
+from globalData import machinesList
+from clMachine import Machine
 #=========================================================================================
 class Task():
     """Task is a part of Itinerary"""
@@ -7,6 +9,3 @@ class Task():
         self.duration = aDuration
         self.machine = aMachine
         self.taskChanged = False
-
-    def __init__(self):
-        pass

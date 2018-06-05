@@ -2,8 +2,9 @@ import tkinter as form
 from tkinter import ttk
 from tkinter import messagebox
 from clTask import Task
+from clMachine import Machine
 import guiTaskNew
-from globalData import STRGS
+from globalData import machinesList, STRGS
 #=========================================================================================
 class guiItineraryNew(form.Toplevel):
     """Form for creating new Itinerary"""
@@ -48,12 +49,14 @@ class guiItineraryNew(form.Toplevel):
         scrollbar = ttk.Scrollbar(frTasksList)
         self.lboxTasksList = form.Listbox(frTasksList, width=27, height=15, yscrollcommand=scrollbar.set)
         self.lboxTasksList.grid(column=0, columnspan=3, row=0, padx=3, pady=3)
-        self.lboxTasksList.bind("<ButtonRelease-1>", self.showDetailsTask)
+        for taskObj in aNewItinerary.tasksList:
+            self.lboxTasksList.insert(form.END, taskObj.name)
+        self.lboxTasksList.bind("<ButtonRelease-1>", lambda event, argument = aNewItinerary: self.showDetailsTask(event, argument))
         scrollbar.config(command=self.lboxTasksList.yview)
 
-        ttk.Button(frTasksList, text=STRGS['ADD'], width=6, command=self.addTaskToItinerary).grid(column=0, row=1, padx=2, pady=4)
-        ttk.Button(frTasksList, text=STRGS['EDIT'], width=6, command=self.editTaskSelected).grid(column=1, row=1, padx=2, pady=4)
-        ttk.Button(frTasksList, text=STRGS['DELETE'], width=6, command=self.deleteTaskSelected).grid(column=2, row=1, padx=2, pady=4)
+        ttk.Button(frTasksList, text=STRGS['ADD'], width=6, command= lambda: self.taskToItinerary(aNewItinerary, isEdited=False)).grid(column=0, row=1, padx=2, pady=4)
+        ttk.Button(frTasksList, text=STRGS['EDIT'], width=6, command= lambda: self.taskToItinerary(aNewItinerary, isEdited = True)).grid(column=1, row=1, padx=2, pady=4)
+        ttk.Button(frTasksList, text=STRGS['DELETE'], width=6, command= lambda: self.deleteTaskSelected(aNewItinerary)).grid(column=2, row=1, padx=2, pady=4)
 
         ttk.Button(self, text=STRGS['SAVE'], width=20, command= lambda: self.saveItinerary(aNewItinerary)).grid(column=0, row=2, columnspan=3, padx=3, pady=3)
 
@@ -62,34 +65,72 @@ class guiItineraryNew(form.Toplevel):
         self.grab_set()
         master.wait_window(self)
 
-    def addTaskToItinerary(self):
-        newTask = Task()
-        guiTaskNew.GuiTaskNew(self, newTask)
-        print(newTask.name, newTask.duration, newTask.machine.name)
-        #TODO if change or obj not null add to tasks list
-        pass
-
-    def editTaskSelected(self):
-        pass
-
-    def deleteTaskSelected(self):
-        pass
-
-    def showDetailsTask(self, event=None):
+    def taskToItinerary(self, aNewItinerary, isEdited):
+        """ Add or edit task in Itinerary """
+        global machinesList
+        task = Task("", 0.0, machinesList[0])   
+        index =0
+        preventEditEmptyTask = False
         try:
+            if isEdited:
+                index = self.lboxTasksList.curselection()[0]
+                task = aNewItinerary.tasksList[index]
+        except IndexError:
+            preventEditEmptyTask = True     #this is for preventing run edit dialog on empty task
             pass
-        except :
+        finally:
+            if preventEditEmptyTask:
+                return
+            guiTaskNew.GuiTaskNew(self, task)
+            if task.taskChanged ==True:
+                if isEdited:    #if edited item then do not change task list else, add task to end
+                    aNewItinerary.tasksList[index] = task
+                else:
+                    aNewItinerary.tasksList.append(task)
+
+            #reload gui list and show updates
+            self.lboxTasksList.delete(0, form.END)
+            for taskObj in aNewItinerary.tasksList:
+                self.lboxTasksList.insert(form.END, taskObj.name)
+            self.showDetailsTask(self,aNewItinerary)
+
+    def deleteTaskSelected(self, aNewItinerary):
+        """ Delete selected task in itinerary """
+        try:
+            index = self.lboxTasksList.curselection()[0]
+            self.lboxTasksList.delete(index)
+            del aNewItinerary.tasksList[index]
+            self.showDetailsTask(self,aNewItinerary)
+        except IndexError:
             pass
 
-    def saveItinerary(self, itin):
+    def showDetailsTask(self, event, aNewItinerary):
+        """ Show all important data on click in details """
+        try:
+            index = self.lboxTasksList.curselection()[0]
+            selectedTask = aNewItinerary.tasksList[index]
+
+            self.lblDuration.configure(text= str(selectedTask.duration))
+            self.lblMachine.configure(text= str(selectedTask.machine.name))
+            self.lblName.configure(text=str(selectedTask.name))
+            self.lblOrder.configure(text=str(index+1))
+        except IndexError:
+            self.lblDuration.configure(text="")
+            self.lblMachine.configure(text="")
+            self.lblName.configure(text="")
+            self.lblOrder.configure(text="")
+
+    def saveItinerary(self, aNewItinerary):
         if not self.itineraryName.get():
-            itin.itineraryChanged = False
-            messagebox.showerror(STRGS['MSG_ERR_ITINERARY_NO_NAME'],STRGS['MSG_ERR_ITINERARY_ENTER_NAME'])
+            aNewItinerary.itineraryChanged = False
+            messagebox.showerror(STRGS['MSG_ERR_ITINERARY_NO_NAME'], STRGS['MSG_ERR_ITINERARY_ENTER_NAME'])
             pass
         else:
-            itin.name = self.itineraryName.get()
-            itin.itineraryChanged = True
+            aNewItinerary.name = self.itineraryName.get()
+            aNewItinerary.itineraryChanged = True
             self.destroy()
+
+            #TODO: FINISH saving itinerary and task and reloading
 
 
 
