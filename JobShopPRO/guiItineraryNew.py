@@ -6,8 +6,8 @@ from clMachine import Machine
 import guiTaskNew
 from globalData import machinesList, STRGS
 #=========================================================================================
-class guiItineraryNew(form.Toplevel):
-    """Form for creating new Itinerary"""
+class GuiItineraryNew(form.Toplevel):
+    """ Form for creating new Itinerary """
 
     def __init__(self, master, aNewItinerary):
         form.Toplevel.__init__(self, master)
@@ -83,7 +83,7 @@ class guiItineraryNew(form.Toplevel):
                 return
             guiTaskNew.GuiTaskNew(self, task)
             if task.taskChanged ==True:
-                if isEdited:    #if edited item then do not change task list else, add task to end
+                if isEdited:    #if edited item then do not change task list, else case add task to end
                     aNewItinerary.tasksList[index] = task
                 else:
                     aNewItinerary.tasksList.append(task)
@@ -114,13 +114,14 @@ class guiItineraryNew(form.Toplevel):
             self.lblMachine.configure(text= str(selectedTask.machine.name))
             self.lblName.configure(text=str(selectedTask.name))
             self.lblOrder.configure(text=str(index+1))
-        except IndexError:
+        except IndexError:      #not selected empty everything
             self.lblDuration.configure(text="")
             self.lblMachine.configure(text="")
             self.lblName.configure(text="")
             self.lblOrder.configure(text="")
 
     def saveItinerary(self, aNewItinerary):
+        """ save itinerary object. to save itinerary it is compulsory to enter name """
         if not self.itineraryName.get():
             aNewItinerary.itineraryChanged = False
             messagebox.showerror(STRGS['MSG_ERR_ITINERARY_NO_NAME'], STRGS['MSG_ERR_ITINERARY_ENTER_NAME'])
@@ -129,12 +130,3 @@ class guiItineraryNew(form.Toplevel):
             aNewItinerary.name = self.itineraryName.get()
             aNewItinerary.itineraryChanged = True
             self.destroy()
-
-            #TODO: FINISH saving itinerary and task and reloading
-
-
-
-        
-
-
-

@@ -47,6 +47,7 @@ class GuiTaskNew(form.Toplevel):
         master.wait_window(self)
 
     def saveNewTask(self, aNewTask):
+        """  """
         aNewTask.taskChanged = False
         if len(self.entTaskName.get()) != 0:
             if len(self.entTaskDuration.get()) != 0:

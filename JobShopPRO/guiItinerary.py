@@ -1,7 +1,7 @@
 import tkinter as form
 from tkinter import ttk
 from tkinter import messagebox
-from guiItineraryNew import guiItineraryNew
+from guiItineraryNew import GuiItineraryNew
 from clItinerary import Itinerary
 from globalData import *
 #=========================================================================================
@@ -18,11 +18,14 @@ class GuiItinerary(form.Frame):
         frItineraries = ttk.LabelFrame(master, text=STRGS['TITLE_ITINERARIES'])
         frItineraries.grid(column=0, row=0, padx=5, pady=5)
 
+        #listbox with itineraries
         scrollbar = ttk.Scrollbar(frItineraries)
-        self.lboxItierariesList = form.Listbox(frItineraries, width=30, height=18, yscrollcommand=scrollbar.set)
-        self.lboxItierariesList.grid(column=0, row=0, padx=3, pady=3)
-        self.lboxItierariesList.bind("<ButtonRelease-1>", self.showDetailsItineraries)
-        scrollbar.config(command=self.lboxItierariesList.yview)
+        self.lboxItinerariesList = form.Listbox(frItineraries, width=30, height=18, yscrollcommand=scrollbar.set)
+        self.lboxItinerariesList.grid(column=0, row=0, padx=3, pady=3)
+        self.lboxItinerariesList.bind("<ButtonRelease-1>", self.showDetailsItineraries)
+        for itineraryObj in itinerariesList:
+            self.lboxItinerariesList.insert(END, itineraryObj.name)
+        scrollbar.config(command=self.lboxItinerariesList.yview)
         
         frButtons = ttk.Frame(master)
         frButtons.grid(column = 1, row=0, padx=5, pady=5, sticky=form.N)
@@ -31,7 +34,7 @@ class GuiItinerary(form.Frame):
         ttk.Button(frButtons, text=STRGS['EDIT'], width=15, command=self.editItinerary).grid(column=0, row=1, padx=2, pady=2)
         ttk.Button(frButtons, text=STRGS['DELETE'], width=15, command=self.deleteItinerary).grid(column=0, row=2, padx=2, pady=2)
 
-        #TODO: add two buttons to change order? (up/down)
+        #TODO: add two buttons to change order?  (up/down)
 
         frItineraryDetail = ttk.LabelFrame(master, text=STRGS['DETAILS'])
         frItineraryDetail.grid(column=0, row=1, columnspan=2, padx=5, pady=5, sticky=form.W)
@@ -40,46 +43,48 @@ class GuiItinerary(form.Frame):
         self.lblProperties.grid(column=0, row=0, padx=3, pady=3)
 
     def addNewItinerary(self):
+        """ Runs dialog to add new itinerary """
         global machinesList
         if not machinesList:
-            messagebox.showerror(STRGS['ERR_NO_MACH_CREATE'], STRGS['ERR_NO_MACH_NO_ITINERS'])
+            messagebox.showerror(STRGS['MSG_ERR_NO_MACH_CREATE'], STRGS['MSG_ERR_NO_MACH_NO_ITINERS'])
         else:
             newItinerary = Itinerary()
-            guiItineraryNew(self, newItinerary)
+            GuiItineraryNew(self, newItinerary)
             if newItinerary.itineraryChanged == True:
                 global itinerariesList
                 itinerariesList.append(newItinerary)
-                self.lboxItierariesList.insert(form.END, newItinerary.name)
+                self.lboxItinerariesList.insert(form.END, newItinerary.name)
 
     def editItinerary(self):
+        """ Runs dialog with itinerary info to edit its values """
         try:
             global itinerariesList
-            index = self.lboxItierariesList.curselection()[0]
-            guiItineraryNew(self, itinerariesList[index])
+            index = self.lboxItinerariesList.curselection()[0] #selected itinerary in listbx
+            GuiItineraryNew(self, itinerariesList[index])
 
             #reload gui list of itineraries
-            self.lboxItierariesList.delete(0, form.END)
+            self.lboxItinerariesList.delete(0, form.END)
             for itinerary in itinerariesList:
-                self.lboxItierariesList.insert(form.END, itinerary.name)
-
-            #self.showDetailsItineraries()
+                self.lboxItinerariesList.insert(form.END, itinerary.name)
         except IndexError:
             pass
 
     def deleteItinerary(self):
+        """ Removes selected itinerary """
         try:
-            index = self.lboxItierariesList.curselection()[0]
-            self.lboxItierariesList.delete(index)
+            index = self.lboxItinerariesList.curselection()[0]
+            self.lboxItinerariesList.delete(index)
             global itinerariesList
             itinerariesList.pop(index)
         except IndexError:
             pass
     
     def showDetailsItineraries(self, event):
+        """ Shows detailed info about selected itinerary in listbox """
         try:
             global itinerariesList
-            index = self.lboxItierariesList.curselection()[0]
+            index = self.lboxItinerariesList.curselection()[0]
             selectedValue = itinerariesList[index].name
-            self.lblProperties.configure(text=selectedValue+", "+str(len(itinerariesList[index].tasksList))+" "+STRGS['TASKS_INITERARY'])
+            self.lblProperties.configure(text=selectedValue + ", " + str(len(itinerariesList[index].tasksList)) + " " + STRGS['TASKS_INITERARY'])
         except IndexError:
              self.lblProperties.configure(text="")

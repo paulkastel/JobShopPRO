@@ -1,4 +1,3 @@
-from clTask import Task
 #=========================================================================================
 class Itinerary():
     """Itinerary is a list of ordered tasks """
@@ -7,4 +6,3 @@ class Itinerary():
         self.name = ""
         self.itineraryChanged = False
         self.tasksList = []
-

@@ -1,11 +1,10 @@
 import tkinter as form
-from guiItinerary import GuiItinerary
-from guiMachine import GuiMachine
+from guiMain import GuiMain
 #=========================================================================================
 def main():
     """ MAIN FUNCTION """
     root = form.Tk()
-    app = GuiItinerary(root)
+    app = GuiMain(root)
     root.mainloop()
 
 if __name__ == '__main__':

@@ -5,4 +5,3 @@ class Machine():
     def __init__(self, aID, aName):
         self.ID = aID
         self.name = aName
-

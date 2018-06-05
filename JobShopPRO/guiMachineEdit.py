@@ -46,4 +46,3 @@ class GuiMachineEdit(form.Toplevel):
     def closeAndCancel(self, event=None):
         """close and cancel editing values"""
         self.destroy()
-

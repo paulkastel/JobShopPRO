@@ -1,12 +1,13 @@
-from clMachine import Machine
+#=========================================================================================
 
-machinesList = [Machine(0, "M1"), Machine(1, "M2"), Machine(2, "M3")]
+machinesList = []
 """All machines in factory"""
 
 itinerariesList = []
 """All itineraries"""
 
 STRGS = {
+    'TITLE_PROGRAM' : "JobShop PRO",
     'TITLE_ITINERARIES' : "Itineraries",
     'ADD_NEW' : "Add new",
     'ADD' : "Add",
