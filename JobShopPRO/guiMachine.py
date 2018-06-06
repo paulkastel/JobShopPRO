@@ -1,7 +1,7 @@
 import tkinter as form
 from tkinter import ttk
 from clMachine import Machine
-from globalData import machinesList, STRGS
+from globalData import machinesList
 import guiMachineEdit
 #=========================================================================================
 class GuiMachine(form.Frame):
@@ -10,13 +10,13 @@ class GuiMachine(form.Frame):
     def __init__(self, master):
         form.Frame.__init__(self, master)
        
-        master.title(STRGS['MACHS'])
+        master.title("Machines")
         #center window in the middle of the screen
         master.geometry("%dx%d+%d+%d" % (400,400, int(master.winfo_screenwidth() / 2 - 400 / 2), int(master.winfo_screenheight() / 2 - 400 / 2)))
         master.resizable(False, False)
 
         #first label frame
-        frMachines = ttk.LabelFrame(master, text=STRGS['MACHS'])
+        frMachines = ttk.LabelFrame(master, text="Machines")
         frMachines.grid(column = 0, row =0, padx=5, pady=5)
         
         scrollbar = ttk.Scrollbar(frMachines)
@@ -25,17 +25,20 @@ class GuiMachine(form.Frame):
         self.lboxMachineList.bind("<ButtonRelease-1>", self.showDetailsMachine)
         scrollbar.config(command=self.lboxMachineList.yview)
 
-        ttk.Button(frMachines, text=STRGS['ADD'], width=7, command=self.addNewMachine).grid(column =0, row=1, padx=2, pady=2)
-        ttk.Button(frMachines, text=STRGS['EDIT'], width=7, command=self.editSelectedMachine).grid(column =1, row=1, padx=2, pady=2)
-        ttk.Button(frMachines, text=STRGS['DETAILS'], width=7, command=self.deleteSelectedMachine).grid(column =2, row=1, padx=2, pady=2)
+        ttk.Button(frMachines, text="Add", width=7, command=self.addNewMachine).grid(column =0, row=1, padx=2, pady=2)
+        ttk.Button(frMachines, text="Edit", width=7, command=self.editSelectedMachine).grid(column =1, row=1, padx=2, pady=2)
+        ttk.Button(frMachines, text="Delete", width=7, command=self.deleteSelectedMachine).grid(column =2, row=1, padx=2, pady=2)
         
         #second label frame
-        frMachineDetail = ttk.LabelFrame(master, text=STRGS['MACH_DETAILS'])
+        frMachineDetail = ttk.LabelFrame(master, text="Machine Detail")
         frMachineDetail.grid(column = 1, row =0, padx=5, pady=5, sticky=form.NW)
 
-        ttk.Label(frMachineDetail, text=STRGS['ID']).grid(column =0, row=0, padx=5, pady=5)
+        ttk.Label(frMachineDetail, text="ID: ").grid(column =0, row=0, padx=5, pady=5)
         self.lblProperties = ttk.Label(frMachineDetail)
         self.lblProperties.grid(column =1, row=0, padx=5, pady=5)
+
+        master.grab_set()
+        master.focus()
 
     def addNewMachine(self):
         """Add new machine to machine list and listbox in form"""
@@ -78,4 +81,4 @@ class GuiMachine(form.Frame):
         except IndexError:
             pass
 
-        #TODO: Export data to txt file
+        #TODO: export to xml file

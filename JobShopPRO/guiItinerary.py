@@ -42,6 +42,9 @@ class GuiItinerary(form.Frame):
         self.lblProperties = ttk.Label(frItineraryDetail, width=50)
         self.lblProperties.grid(column=0, row=0, padx=3, pady=3)
 
+        master.grab_set()
+        master.focus()
+
     def addNewItinerary(self):
         """ Runs dialog to add new itinerary """
         global machinesList
