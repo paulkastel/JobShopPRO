@@ -29,13 +29,19 @@ class GuiTaskNew(form.Toplevel):
         self.entTaskDurationVar = form.DoubleVar()
         vcmd = (master.register(self.validate), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
         self.entTaskDuration = ttk.Entry(frTaskNew, textvariable=self.entTaskDurationVar, width=17, validate='key', validatecommand = vcmd)
-        self.entTaskDuration.grid(column=1, row=1, padx=3, pady=3)
+        self.entTaskDuration.grid(column=1, row=1, padx=3, pady=3) #TODO change it to spin entry
         self.entTaskDurationVar.set(aNewTask.duration)
 
         #combobox that is filled with all names from machines list. it is also readonly so value must be selected
         self.choosenMachine = form.StringVar()
+        global machinesList
         self.cbMachine = ttk.Combobox(frTaskNew, width=14, textvariable=self.choosenMachine, state="readonly", values=[mach.name for mach in machinesList])
-        self.cbMachine.current(aNewTask.machine.ID)           #first element is selected
+        try:
+            #when editing set combobox to index of machine which is first the same with name machine from task machine. if not found (adding? then set it to the first machine)
+            self.cbMachine.current(machinesList.index(next(mach for mach in machinesList if mach.name == aNewTask.machine.name)))
+        except:
+            self.cbMachine.current(0)
+
         self.cbMachine.grid(column=1, row=2, padx=3, pady=3)
 
         #passing command with argument
@@ -47,7 +53,7 @@ class GuiTaskNew(form.Toplevel):
         master.wait_window(self)
 
     def saveNewTask(self, aNewTask):
-        """  """
+        """Check if everyfield is ok and then saves task"""
         aNewTask.taskChanged = False
         if len(self.entTaskName.get()) != 0:
             if len(self.entTaskDuration.get()) != 0:
@@ -66,9 +72,8 @@ class GuiTaskNew(form.Toplevel):
             messagebox.showerror(STRGS['MSG_ERR_ITINERARY_NO_NAME'], STRGS['MSG_ERR_ITINERARY_ENTER_NAME'])
         pass
 
-
     def validate(self, action, index, valueIfAllowed, priorValue, text, validationType, triggerType, widgetName):
-        """ Preserve to enter only specified keys into entry """
+        """Preserve to enter only specified keys into entry """
         if(action == '1'): #user can delete input e.g. erase wrong number and enter it again
             if text in '0123456789.':
                 try:

@@ -2,7 +2,7 @@ import tkinter as form
 from guiMain import GuiMain
 #=========================================================================================
 def main():
-    """ MAIN FUNCTION """
+    """MAIN FUNCTION """
     root = form.Tk()
     app = GuiMain(root)
     root.mainloop()

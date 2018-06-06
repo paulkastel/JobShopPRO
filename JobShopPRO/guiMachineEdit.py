@@ -1,5 +1,6 @@
 import tkinter as form
 from tkinter import ttk
+from tkinter import messagebox as msg
 from globalData import machinesList, STRGS
 from clMachine import Machine
 #=========================================================================================
@@ -8,8 +9,9 @@ class GuiMachineEdit(form.Toplevel):
 
     def __init__(self, master, Aindex):
         form.Toplevel.__init__(self, master)
+
         self.editedItemIndex = Aindex
-        self.title(STRGS['EDIT']+" " + str(machinesList[self.editedItemIndex].ID))
+        self.title(STRGS['EDIT']+" " + str(machinesList[self.editedItemIndex].name))
         #center window in the middle of the screen
         self.geometry("%dx%d+%d+%d" % (250,100, int(self.winfo_screenwidth() / 2 - 250 / 2), int(self.winfo_screenheight() / 2 - 100 / 2)))
         self.resizable(False, False)
@@ -21,7 +23,7 @@ class GuiMachineEdit(form.Toplevel):
 
         #Entry and value in it - Two keys are also binded with commands
         self.editedValue = form.StringVar()
-        self.editedValue.set(machinesList[self.editedItemIndex].ID)
+        self.editedValue.set(machinesList[self.editedItemIndex].name)
         self.entNewValue = ttk.Entry(frMachineEdit, textvariable=self.editedValue)
         self.entNewValue.grid(column=1, row=0, padx=3, pady=3)
         self.entNewValue.focus()
@@ -36,13 +38,16 @@ class GuiMachineEdit(form.Toplevel):
         self.grab_set()
         master.wait_window(self)
         
-
     def closeAndSave(self, event=None):
-        """close and save new value edited in machine list"""
+        """Close and save new value edited in machine list"""
         global machinesList
-        machinesList[self.editedItemIndex].ID = self.editedValue.get()
+        for machObj in machinesList:
+            if machObj.name == self.editedValue.get():
+                msg.showerror("Illegal name", machObj.name+" exist. Enter diffrent name.")
+                return
+        machinesList[self.editedItemIndex].name = self.editedValue.get()
         self.destroy()    
         
     def closeAndCancel(self, event=None):
-        """close and cancel editing values"""
+        """Close and cancel editing values"""
         self.destroy()

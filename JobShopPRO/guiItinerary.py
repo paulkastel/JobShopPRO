@@ -6,7 +6,7 @@ from clItinerary import Itinerary
 from globalData import *
 #=========================================================================================
 class GuiItinerary(form.Frame):
-    """ Form to manage itineraries in project """
+    """Form to manage itineraries in project"""
 
     def __init__(self, master):
         form.Frame.__init__(self, master)
@@ -24,7 +24,7 @@ class GuiItinerary(form.Frame):
         self.lboxItinerariesList.grid(column=0, row=0, padx=3, pady=3)
         self.lboxItinerariesList.bind("<ButtonRelease-1>", self.showDetailsItineraries)
         for itineraryObj in itinerariesList:
-            self.lboxItinerariesList.insert(END, itineraryObj.name)
+            self.lboxItinerariesList.insert(form.END, itineraryObj.name)
         scrollbar.config(command=self.lboxItinerariesList.yview)
         
         frButtons = ttk.Frame(master)
@@ -46,7 +46,7 @@ class GuiItinerary(form.Frame):
         master.focus()
 
     def addNewItinerary(self):
-        """ Runs dialog to add new itinerary """
+        """Runs dialog to add new itinerary"""
         global machinesList
         if not machinesList:
             messagebox.showerror(STRGS['MSG_ERR_NO_MACH_CREATE'], STRGS['MSG_ERR_NO_MACH_NO_ITINERS'])
@@ -59,7 +59,7 @@ class GuiItinerary(form.Frame):
                 self.lboxItinerariesList.insert(form.END, newItinerary.name)
 
     def editItinerary(self):
-        """ Runs dialog with itinerary info to edit its values """
+        """Runs dialog with itinerary info to edit its values"""
         try:
             global itinerariesList
             index = self.lboxItinerariesList.curselection()[0] #selected itinerary in listbx
@@ -73,7 +73,7 @@ class GuiItinerary(form.Frame):
             pass
 
     def deleteItinerary(self):
-        """ Removes selected itinerary """
+        """Removes selected itinerary"""
         try:
             index = self.lboxItinerariesList.curselection()[0]
             self.lboxItinerariesList.delete(index)
@@ -83,7 +83,7 @@ class GuiItinerary(form.Frame):
             pass
     
     def showDetailsItineraries(self, event):
-        """ Shows detailed info about selected itinerary in listbox """
+        """Shows detailed info about selected itinerary in listbox"""
         try:
             global itinerariesList
             index = self.lboxItinerariesList.curselection()[0]

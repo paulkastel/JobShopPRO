@@ -7,7 +7,7 @@ import guiTaskNew
 from globalData import machinesList, STRGS
 #=========================================================================================
 class GuiItineraryNew(form.Toplevel):
-    """ Form for creating new Itinerary """
+    """Form for creating new Itinerary"""
 
     def __init__(self, master, aNewItinerary):
         form.Toplevel.__init__(self, master)
@@ -66,7 +66,7 @@ class GuiItineraryNew(form.Toplevel):
         master.wait_window(self)
 
     def taskToItinerary(self, aNewItinerary, isEdited):
-        """ Add or edit task in Itinerary """
+        """Add or edit task in Itinerary"""
         global machinesList
         task = Task("", 0.0, machinesList[0])   
         index =0
@@ -82,7 +82,7 @@ class GuiItineraryNew(form.Toplevel):
             if preventEditEmptyTask:
                 return
             guiTaskNew.GuiTaskNew(self, task)
-            if task.taskChanged ==True:
+            if task.taskChanged == True:
                 if isEdited:    #if edited item then do not change task list, else case add task to end
                     aNewItinerary.tasksList[index] = task
                 else:
@@ -95,7 +95,7 @@ class GuiItineraryNew(form.Toplevel):
             self.showDetailsTask(self,aNewItinerary)
 
     def deleteTaskSelected(self, aNewItinerary):
-        """ Delete selected task in itinerary """
+        """Delete selected task in itinerary"""
         try:
             index = self.lboxTasksList.curselection()[0]
             self.lboxTasksList.delete(index)
@@ -105,7 +105,7 @@ class GuiItineraryNew(form.Toplevel):
             pass
 
     def showDetailsTask(self, event, aNewItinerary):
-        """ Show all important data on click in details """
+        """Show all important data on click in details"""
         try:
             index = self.lboxTasksList.curselection()[0]
             selectedTask = aNewItinerary.tasksList[index]
@@ -121,11 +121,11 @@ class GuiItineraryNew(form.Toplevel):
             self.lblOrder.configure(text="")
 
     def saveItinerary(self, aNewItinerary):
-        """ save itinerary object. to save itinerary it is compulsory to enter name """
+        """Save itinerary object. to save itinerary it is compulsory to enter name"""
         if not self.itineraryName.get():
-            aNewItinerary.itineraryChanged = False
+            #aNewItinerary.itineraryChanged = False
             messagebox.showerror(STRGS['MSG_ERR_ITINERARY_NO_NAME'], STRGS['MSG_ERR_ITINERARY_ENTER_NAME'])
-            pass
+            self.tkraise()
         else:
             aNewItinerary.name = self.itineraryName.get()
             aNewItinerary.itineraryChanged = True

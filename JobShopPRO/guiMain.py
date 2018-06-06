@@ -1,11 +1,11 @@
 import tkinter as form
 from tkinter import ttk
 import guiMachine, guiItinerary
-from globalData import STRGS
+from globalData import *
 from tkinter import messagebox as msg
 #=========================================================================================
 class GuiMain(form.Frame):
-    """ Main form to manage all the program and options """
+    """Main form to manage all the program and options"""
 
     def __init__(self, master):
         form.Frame.__init__(self, master)
@@ -53,20 +53,27 @@ class GuiMain(form.Frame):
         ttk.Button(frTabMain, text="Itineraries", width=20, command=self.popItinerariesDlg).grid(column=0, row=1, padx=5, pady=5)
         form.Button(frTabMain, text="Itineraries", width=17, height=8, command=self.createGraphs).grid(column=0, row=2, padx=5, pady=5)
 
-        self.lblMachinesCount = ttk.Label(frTabMain, text="Created 3 machines").grid(column =1, row=0, padx=5, pady=5)
-        self.lblItinerariesCount = ttk.Label(frTabMain, text="Created 3 itinereaies").grid(column =1, row=1, padx=5, pady=5)
+        global machinesList
+        self.lblMachinesCount = ttk.Label(frTabMain, text="Created "+str(len(machinesList))+" machines")
+        self.lblMachinesCount.grid(column =1, row=0, padx=5, pady=5)
+        global itinerariesList
+        self.lblItinerariesCount = ttk.Label(frTabMain, text="Created "+str(len(itinerariesList))+" itinereaies")
+        self.lblItinerariesCount.grid(column =1, row=1, padx=5, pady=5)
 
         #gui footer that shows additional information
+        #TODO: use it to show logs in app?
         self.statusBar = form.Label(master, text="status bar info", bd=1, relief=form.SUNKEN, anchor=form.W)
         self.statusBar.pack(side=form.BOTTOM, fill=form.X)
 
-
     def popAboutDlg(self):
+        """Shows info about program and author"""
         msg.showinfo("About JobShopPRO", "This is JobShopPRO\nMade as Master Thesis at AGH University\nby Pawel Kastelik, 2018")
         pass
 
     def popMachinesDlg(self):
-        guiMachine.GuiMachine(form.Toplevel(self))
+        """Shows dialog to create machines"""
+        guiMachine.GuiMachine(form.Toplevel(self)).wait_window()
+        self.lblMachinesCount.config(text="Created "+str(len(machinesList))+" machines")
         pass
 
     def popMatrixDlg(self):
@@ -74,10 +81,13 @@ class GuiMain(form.Frame):
         pass    
 
     def popItinerariesDlg(self):
-        guiItinerary.GuiItinerary(form.Toplevel(self))
+        """Shows dialog to create itineraries"""
+        guiItinerary.GuiItinerary(form.Toplevel(self)).wait_window()
+        self.lblItinerariesCount.config(text="Created "+str(len(itinerariesList))+" machines")
         pass
 
     def exitProgram(self):
+        """Quit everything"""
         answer = msg.askyesno("Exit", "For sure you want to quit?")
         if answer:
             self.quit()
@@ -85,16 +95,13 @@ class GuiMain(form.Frame):
             exit()
 
     def createGraphs(self):
-        print("TODO graph")
+        print("#TODO: graph")
         pass
 
     def dataFileImport(self):
-        print("TODO import")
+        print("#TODO: import")
         pass
 
     def dataFileExport(self):
-        print("TODO export")
+        print("#TODO: export")
         pass
-
-
-
