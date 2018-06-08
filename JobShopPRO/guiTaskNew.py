@@ -2,6 +2,7 @@ import tkinter as form
 from tkinter import ttk
 from tkinter import messagebox
 from globalData import machinesList, STRGS
+import sys
 #=========================================================================================
 class GuiTaskNew(form.Toplevel):
     """Form for adding new Task in itinerary"""
@@ -26,11 +27,11 @@ class GuiTaskNew(form.Toplevel):
         self.entTaskName.focus()
         self.entTaskNameVar.set(aNewTask.name)
 
-        self.entTaskDurationVar = form.DoubleVar()
-        vcmd = (master.register(self.validate), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-        self.entTaskDuration = ttk.Entry(frTaskNew, textvariable=self.entTaskDurationVar, width=17, validate='key', validatecommand = vcmd)
-        self.entTaskDuration.grid(column=1, row=1, padx=3, pady=3) #TODO change it to spin entry
-        self.entTaskDurationVar.set(aNewTask.duration)
+        self.spbTaskDurationVar = form.DoubleVar()
+        vcmd = (master.register(self.validateNumbers), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        self.spbTaskDuration = form.Spinbox(frTaskNew, textvariable=self.spbTaskDurationVar, width=15, from_=0, to=sys.float_info.max, format="%.2f",increment=0.01, validate='key', validatecommand = vcmd)
+        self.spbTaskDuration.grid(column=1, row=1, padx=3, pady=3) 
+        self.spbTaskDurationVar.set(aNewTask.duration)
 
         #combobox that is filled with all names from machines list. it is also readonly so value must be selected
         self.choosenMachine = form.StringVar()
@@ -56,9 +57,9 @@ class GuiTaskNew(form.Toplevel):
         """Check if everyfield is ok and then saves task"""
         aNewTask.taskChanged = False
         if len(self.entTaskName.get()) != 0:
-            if len(self.entTaskDuration.get()) != 0:
-                if float(self.entTaskDuration.get()) > 0:
-                    aNewTask.duration = float(self.entTaskDuration.get())
+            if len(self.spbTaskDuration.get()) != 0:
+                if float(self.spbTaskDuration.get()) > 0:
+                    aNewTask.duration = float(self.spbTaskDuration.get())
                     aNewTask.name = self.entTaskName.get()
                     global machinesList
                     aNewTask.machine = machinesList[self.cbMachine.current()]
@@ -72,7 +73,7 @@ class GuiTaskNew(form.Toplevel):
             messagebox.showerror(STRGS['MSG_ERR_ITINERARY_NO_NAME'], STRGS['MSG_ERR_ITINERARY_ENTER_NAME'])
         pass
 
-    def validate(self, action, index, valueIfAllowed, priorValue, text, validationType, triggerType, widgetName):
+    def validateNumbers(self, action, index, valueIfAllowed, priorValue, text, validationType, triggerType, widgetName):
         """Preserve to enter only specified keys into entry """
         if(action == '1'): #user can delete input e.g. erase wrong number and enter it again
             if text in '0123456789.':

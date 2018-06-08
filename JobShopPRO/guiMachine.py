@@ -103,7 +103,8 @@ class GuiMachine(form.Frame):
             self.lboxMachineList.delete(0, form.END)
             for mach in machinesList:
                 self.lboxMachineList.insert(form.END, mach.name)
-            self.lblProperties.configure(text="")
+            
+            self.lboxMachineList.selection_set(index)
         except IndexError:
             pass
 

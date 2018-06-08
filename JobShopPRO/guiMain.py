@@ -1,6 +1,8 @@
 import tkinter as form
 from tkinter import ttk
-import guiMachine, guiItinerary
+import guiMachine
+import guiItinerary
+import guiMatrixParam
 from globalData import *
 from tkinter import messagebox as msg
 #=========================================================================================
@@ -38,26 +40,30 @@ class GuiMain(form.Frame):
         menuBar.add_cascade(label="Data", menu=dataOption)
         menuBar.add_cascade(label="Information", menu=aboutOption)
 
-        tabController = ttk.Notebook(master)
+        tabController = ttk.Notebook(master, width=40)
         frTabMain = ttk.Frame(tabController)
         frTabLPT = ttk.Frame(tabController)
         frTabSPT = ttk.Frame(tabController)
+        frTabLifo = ttk.Frame(tabController)
+        frTabFifo = ttk.Frame(tabController)
 
         tabController.add(frTabMain, text="Setup")
         tabController.add(frTabLPT, text="LPT")
         tabController.add(frTabSPT, text="SPT")
-
+        tabController.add(frTabLifo, text="LIFO")
+        tabController.add(frTabFifo, text="FIFO")
         tabController.pack(expand=1, fill="both")
 
         ttk.Button(frTabMain, text="Machines", width=20, command=self.popMachinesDlg).grid(column=0, row=0, padx=5, pady=5)
         ttk.Button(frTabMain, text="Itineraries", width=20, command=self.popItinerariesDlg).grid(column=0, row=1, padx=5, pady=5)
-        form.Button(frTabMain, text="Itineraries", width=17, height=8, command=self.createGraphs).grid(column=0, row=2, padx=5, pady=5)
+        ttk.Button(frTabMain, text="Enter data in matrix", width=20, command=self.popMatrixDlg).grid(column=0, row=2, padx=5, pady=5)
+        form.Button(frTabMain, text="Create graphs", width=17, height=8, command=self.createGraphs).grid(column=0, row=3, padx=5, pady=5)
 
         global machinesList
-        self.lblMachinesCount = ttk.Label(frTabMain, text="Created "+str(len(machinesList))+" machines")
+        self.lblMachinesCount = ttk.Label(frTabMain, text="Created " + str(len(machinesList)) + " machines")
         self.lblMachinesCount.grid(column =1, row=0, padx=5, pady=5)
         global itinerariesList
-        self.lblItinerariesCount = ttk.Label(frTabMain, text="Created "+str(len(itinerariesList))+" itinereaies")
+        self.lblItinerariesCount = ttk.Label(frTabMain, text="Created " + str(len(itinerariesList)) + " itineraries")
         self.lblItinerariesCount.grid(column =1, row=1, padx=5, pady=5)
 
         #gui footer that shows additional information
@@ -73,17 +79,27 @@ class GuiMain(form.Frame):
     def popMachinesDlg(self):
         """Shows dialog to create machines"""
         guiMachine.GuiMachine(form.Toplevel(self)).wait_window()
-        self.lblMachinesCount.config(text="Created "+str(len(machinesList))+" machines")
+        self.lblMachinesCount.config(text="Created " + str(len(machinesList)) + " machines")
         pass
 
     def popMatrixDlg(self):
-        print("TODO matrix")
+        global machinesList, itinerariesList
+        if len(machinesList) or len(itinerariesList):
+            answer = msg.askyesno("warning","using this option will erase current data. are you sure?", icon="warning")
+            if answer:
+                machinesList = []
+                itinerariesList = []
+            else:
+                return
+
+        guiMatrixParam.GuiMatrixParam(self)
+
         pass    
 
     def popItinerariesDlg(self):
         """Shows dialog to create itineraries"""
         guiItinerary.GuiItinerary(form.Toplevel(self)).wait_window()
-        self.lblItinerariesCount.config(text="Created "+str(len(itinerariesList))+" machines")
+        self.lblItinerariesCount.config(text="Created " + str(len(itinerariesList)) + " itineraries")
         pass
 
     def exitProgram(self):
@@ -105,3 +121,5 @@ class GuiMain(form.Frame):
     def dataFileExport(self):
         print("#TODO: export")
         pass
+
+    #TODO: favicon

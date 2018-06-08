@@ -41,8 +41,8 @@ class GuiMachineEdit(form.Toplevel):
     def closeAndSave(self, event=None):
         """Close and save new value edited in machine list"""
         global machinesList
-        for machObj in machinesList:
-            if machObj.name == self.editedValue.get():
+        for index, machObj in enumerate(machinesList):
+            if machObj.name == self.editedValue.get() and self.editedItemIndex != index:        #prevent form being unable to edit the same item
                 msg.showerror("Illegal name", machObj.name+" exist. Enter diffrent name.")
                 return
         machinesList[self.editedItemIndex].name = self.editedValue.get()
