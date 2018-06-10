@@ -3,6 +3,7 @@ from tkinter import ttk
 import guiMachine
 import guiItinerary
 import guiMatrixParam
+import guiMatrixInput
 from globalData import *
 from tkinter import messagebox as msg
 #=========================================================================================
@@ -62,6 +63,7 @@ class GuiMain(form.Frame):
         global machinesList
         self.lblMachinesCount = ttk.Label(frTabMain, text="Created " + str(len(machinesList)) + " machines")
         self.lblMachinesCount.grid(column =1, row=0, padx=5, pady=5)
+
         global itinerariesList
         self.lblItinerariesCount = ttk.Label(frTabMain, text="Created " + str(len(itinerariesList)) + " itineraries")
         self.lblItinerariesCount.grid(column =1, row=1, padx=5, pady=5)
@@ -83,17 +85,27 @@ class GuiMain(form.Frame):
         pass
 
     def popMatrixDlg(self):
+        """Initiates procedure of entering values by matrix"""
         global machinesList, itinerariesList
         if len(machinesList) or len(itinerariesList):
-            answer = msg.askyesno("warning","using this option will erase current data. are you sure?", icon="warning")
+            answer = msg.askyesno("Warning","using this option will erase current data. are you sure?", icon="warning")
             if answer:
                 machinesList = []
                 itinerariesList = []
             else:
                 return
 
-        guiMatrixParam.GuiMatrixParam(self)
+        #save important values in tuple
+        machinesAmount = 0
+        itinerariesAmount = 0
+        arrAmount = [machinesAmount, itinerariesAmount]
 
+        #python only allow pass-by-object, so this is only way to get numbers from next gui
+        guiMatrixParam.GuiMatrixParam(self, arrAmount).wait_window()
+        self.grab_set()
+        self.focus_set()
+        if all(x != 0 for x in arrAmount):
+            guiMatrixInput.GuiMatrixInput(self, arrAmount[0], arrAmount[1])
         pass    
 
     def popItinerariesDlg(self):

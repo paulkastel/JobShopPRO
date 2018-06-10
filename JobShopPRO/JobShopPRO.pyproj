@@ -42,15 +42,9 @@
     <Compile Include="guiMachineEdit.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="guiMain.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="guiMatrixInput.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="guiMatrixParam.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="guiMain.py" />
+    <Compile Include="guiMatrixInput.py" />
+    <Compile Include="guiMatrixParam.py" />
     <Compile Include="guiTaskNew.py">
       <SubType>Code</SubType>
     </Compile>
