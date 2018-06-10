@@ -34,6 +34,8 @@ class GuiMain(form.Frame):
 
         dataOption.add_command(label="Import from file...", command=self.dataFileImport)
         dataOption.add_command(label="Export to file...", command=self.dataFileExport)
+        
+        #TODO: to dataOption create new window with logs?
 
         aboutOption.add_command(label="About", command=self.popAboutDlg)
       
@@ -60,13 +62,14 @@ class GuiMain(form.Frame):
         ttk.Button(frTabMain, text="Enter data in matrix", width=20, command=self.popMatrixDlg).grid(column=0, row=2, padx=5, pady=5)
         form.Button(frTabMain, text="Create graphs", width=17, height=8, command=self.createGraphs).grid(column=0, row=3, padx=5, pady=5)
 
-        global machinesList
-        self.lblMachinesCount = ttk.Label(frTabMain, text="Created " + str(len(machinesList)) + " machines")
+        global machinesList, itinerariesList
+        self.lblMachinesCount = ttk.Label(frTabMain)
         self.lblMachinesCount.grid(column =1, row=0, padx=5, pady=5)
 
-        global itinerariesList
-        self.lblItinerariesCount = ttk.Label(frTabMain, text="Created " + str(len(itinerariesList)) + " itineraries")
+        self.lblItinerariesCount = ttk.Label(frTabMain)
         self.lblItinerariesCount.grid(column =1, row=1, padx=5, pady=5)
+
+        self.updateMainLabelsConfiguration()
 
         #gui footer that shows additional information
         #TODO: use it to show logs in app?
@@ -81,7 +84,7 @@ class GuiMain(form.Frame):
     def popMachinesDlg(self):
         """Shows dialog to create machines"""
         guiMachine.GuiMachine(form.Toplevel(self)).wait_window()
-        self.lblMachinesCount.config(text="Created " + str(len(machinesList)) + " machines")
+        self.updateMainLabelsConfiguration()
         pass
 
     def popMatrixDlg(self):
@@ -90,8 +93,8 @@ class GuiMain(form.Frame):
         if len(machinesList) or len(itinerariesList):
             answer = msg.askyesno("Warning","using this option will erase current data. are you sure?", icon="warning")
             if answer:
-                machinesList = []
-                itinerariesList = []
+                machinesList.clear()
+                itinerariesList.clear()
             else:
                 return
 
@@ -100,18 +103,18 @@ class GuiMain(form.Frame):
         itinerariesAmount = 0
         arrAmount = [machinesAmount, itinerariesAmount]
 
-        #python only allow pass-by-object, so this is only way to get numbers from next gui
+        #python only allow pass-by-object, so this is only way to get numbers
+        #from next gui
         guiMatrixParam.GuiMatrixParam(self, arrAmount).wait_window()
-        self.grab_set()
-        self.focus_set()
+        self.focus_force()
         if all(x != 0 for x in arrAmount):
-            guiMatrixInput.GuiMatrixInput(self, arrAmount[0], arrAmount[1])
-        pass    
+            guiMatrixInput.GuiMatrixInput(self, arrAmount[0], arrAmount[1]).wait_window()
+        self.updateMainLabelsConfiguration()    
 
     def popItinerariesDlg(self):
         """Shows dialog to create itineraries"""
         guiItinerary.GuiItinerary(form.Toplevel(self)).wait_window()
-        self.lblItinerariesCount.config(text="Created " + str(len(itinerariesList)) + " itineraries")
+        self.updateMainLabelsConfiguration()
         pass
 
     def exitProgram(self):
@@ -134,4 +137,10 @@ class GuiMain(form.Frame):
         print("#TODO: export")
         pass
 
+    def updateMainLabelsConfiguration(self):
+        """Updates labels with actual amount of items in global lists"""
+        global machinesList, itinerariesList
+        self.lblItinerariesCount.config(text="Created " + str(len(itinerariesList)) + " itineraries")
+        self.lblMachinesCount.config(text="Created " + str(len(machinesList)) + " machines")
+        
     #TODO: favicon

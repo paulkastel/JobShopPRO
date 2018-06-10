@@ -11,7 +11,7 @@ class GuiMachineEdit(form.Toplevel):
         form.Toplevel.__init__(self, master)
 
         self.editedItemIndex = Aindex
-        self.title(STRGS['EDIT']+" " + str(machinesList[self.editedItemIndex].name))
+        self.title(STRGS['EDIT'] + " " + str(machinesList[self.editedItemIndex].name))
         #center window in the middle of the screen
         self.geometry("%dx%d+%d+%d" % (250,100, int(self.winfo_screenwidth() / 2 - 250 / 2), int(self.winfo_screenheight() / 2 - 100 / 2)))
         self.resizable(False, False)
@@ -33,17 +33,16 @@ class GuiMachineEdit(form.Toplevel):
         ttk.Button(self, text=STRGS['OK'], width=12, command=self.closeAndSave).grid(column=0, row=1, padx=5, pady=5)
         ttk.Button(self, text=STRGS['CANCEL'], width=12, command=self.closeAndCancel).grid(column=1, row=1, padx=5, pady=5)
 
-        #set to be on top, hijack all comands and pause anything until close 
+        #set to be on top, hijack all comands and pause anything until close
         self.transient(master)
         self.grab_set()
-        master.wait_window(self)
         
     def closeAndSave(self, event=None):
         """Close and save new value edited in machine list"""
         global machinesList
         for index, machObj in enumerate(machinesList):
             if machObj.name == self.editedValue.get() and self.editedItemIndex != index:        #prevent form being unable to edit the same item
-                msg.showerror("Illegal name", machObj.name+" exist. Enter diffrent name.")
+                msg.showerror("Illegal name", machObj.name + " exist. Enter diffrent name.")
                 return
         machinesList[self.editedItemIndex].name = self.editedValue.get()
         self.destroy()    

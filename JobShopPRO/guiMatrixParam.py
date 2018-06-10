@@ -5,7 +5,6 @@ from globalData import STRGS
 from guiMatrixInput import GuiMatrixInput
 import sys
 #=========================================================================================
-
 class GuiMatrixParam(form.Toplevel):
     """Form to get number of itineraries and machines"""
 
@@ -24,10 +23,10 @@ class GuiMatrixParam(form.Toplevel):
         ttk.Label(frInput, text="Number of itineraries:").grid(column=0, row=1, padx=5, pady=5)
 
         vcmd = (master.register(self.validateNumbers), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-        self.spbMachinesQuant = form.Spinbox(frInput, width=7, from_=3, to=100, validate='key', validatecommand = vcmd)
+        self.spbMachinesQuant = form.Spinbox(frInput, width=7, from_=4, to=100, validate='key', validatecommand = vcmd)
         self.spbMachinesQuant.grid(column=1, row=0, padx=3, pady=3)
 
-        self.spbItinerariesQuant = form.Spinbox(frInput, width=7, from_=2, to=100, validate='key', validatecommand = vcmd)
+        self.spbItinerariesQuant = form.Spinbox(frInput, width=7, from_=3, to=100, validate='key', validatecommand = vcmd)
         self.spbItinerariesQuant.grid(column=1, row=1, padx=3, pady=3)
 
         form.Button(self, text="OK", width=20, command=lambda arg=arrAmount: self.createMatrix(arg)).pack(padx=5, pady=5)
@@ -43,7 +42,7 @@ class GuiMatrixParam(form.Toplevel):
         try:
             arrAmount[0] = int(float(self.spbMachinesQuant.get()))
             arrAmount[1] = int(float(self.spbItinerariesQuant.get()))
-            if len(str(arrAmount[1])) != 0 and len(str(arrAmount[0])) !=0:
+            if len(str(arrAmount[1])) != 0 and len(str(arrAmount[0])) != 0:
                 if arrAmount[1] != 0 and arrAmount[0] != 0:
                     self.destroy()
                 else:
@@ -53,7 +52,7 @@ class GuiMatrixParam(form.Toplevel):
 
     def validateNumbers(self, action, index, valueIfAllowed, priorValue, text, validationType, triggerType, widgetName):
         """Preserve to enter only specified keys into entry """
-        if(len(valueIfAllowed) >3): #no longer than 3 digits
+        if(len(valueIfAllowed) > 3): #no longer than 3 digits
             return False
         elif(action == '1'): #Type of action (1=insert, 0=delete, -1 for others)
             if text in '0123456789':

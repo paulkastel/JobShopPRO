@@ -11,7 +11,7 @@ class GuiMachine(form.Frame):
     def __init__(self, master):
         form.Frame.__init__(self, master)
 
-        self.master= master
+        self.master = master
         self.master.title(STRGS['MACHS'])
         #center window in the middle of the screen
         self.master.geometry("%dx%d+%d+%d" % (400,400, int(master.winfo_screenwidth() / 2 - 400 / 2), int(master.winfo_screenheight() / 2 - 400 / 2)))
@@ -50,7 +50,7 @@ class GuiMachine(form.Frame):
 
     def addNewMachine(self):
         """Add new machine to machine list and listbox in form"""
-        newMachine = Machine("M" + str(len(self.lboxMachineList.get(0, form.END))+1))
+        newMachine = Machine("M" + str(len(self.lboxMachineList.get(0, form.END)) + 1))
         global machinesList
         machinesList.append(newMachine)
         self.lboxMachineList.insert(form.END, newMachine.name)
@@ -76,12 +76,12 @@ class GuiMachine(form.Frame):
             for itinObj in itinerariesList:
                 for taskObj in itinObj.tasksList:
                     if taskObj.machine.name == self.lboxMachineList.get(form.ANCHOR):
-                        msg.showerror("Illegal action", taskObj.machine.name+" is used in "+taskObj.name+" task in "+itinObj.name+" itinerary\nand cannot be deleted")
+                        msg.showerror("Illegal action", taskObj.machine.name + " is used in " + taskObj.name + " in " + itinObj.name + " \nand cannot be deleted")
                         return
             self.lboxMachineList.delete(index)
             global machinesList
             machinesList.pop(index)
-            self.lboxMachineList.select_set(index-1)
+            self.lboxMachineList.select_set(index - 1)
             self.showDetailsMachine(None)
         except IndexError:
             pass
@@ -94,10 +94,10 @@ class GuiMachine(form.Frame):
             global itinerariesList
             for itinObj in itinerariesList:
                 for taskObj in itinObj.tasksList:
-                    if taskObj.machine.name == self.lboxMachineList.get(form.ANCHOR):
-                        msg.showwarning("Warning!", taskObj.machine.name+" is in use by task.\nThink about whether you know what you are doing")
+                    if taskObj.machine.name == self.lboxMachineList.get(self.lboxMachineList.curselection()):
+                        msg.showwarning("Warning!", taskObj.machine.name + " is in use by task.\nThink about whether you know what you are doing")
                         break
-            guiMachineEdit.GuiMachineEdit(self, index)
+            guiMachineEdit.GuiMachineEdit(self, index).wait_window()
 
             #reload gui list and show updates
             self.lboxMachineList.delete(0, form.END)
@@ -105,6 +105,7 @@ class GuiMachine(form.Frame):
                 self.lboxMachineList.insert(form.END, mach.name)
             
             self.lboxMachineList.selection_set(index)
+            self.showDetailsMachine(self)
         except IndexError:
             pass
 

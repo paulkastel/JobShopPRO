@@ -1,5 +1,9 @@
 import tkinter as form
 from tkinter import ttk
+from tkinter import messagebox as msg
+from clItinerary import Itinerary
+from clMachine import Machine
+from clTask import Task
 from globalData import *
 #=========================================================================================
 class GuiMatrixInput(form.Toplevel):
@@ -15,7 +19,7 @@ class GuiMatrixInput(form.Toplevel):
 
         #set this window to be on top and in focus
         self.grab_set()
-        self.focus_set()
+        self.focus_force()
 
         frMain = ttk.Frame(self)
 
@@ -38,20 +42,21 @@ class GuiMatrixInput(form.Toplevel):
         frGridItineraries.grid(column=1, row=1, padx=30, pady=10)
 
         #here important entries are storaged
-        self.tasksEntries = self.createThatMatrixEntries(frGridTasks, aColMachines, aRowItineraries)
-        self.initsEntries = self.createThatMatrixEntries(frGridItineraries, aColMachines, aRowItineraries)
+        self.timesEntries = self.createThatMatrixEntries(frGridTasks, aColMachines, aRowItineraries, self.validatevalidateFloat)
+        self.machinesEntries = self.createThatMatrixEntries(frGridItineraries, aColMachines, aRowItineraries, self.validateOnlyInt)
 
         #after creatings frames mandatory is to get the newiest values
         frGridItineraries.update()
         frGridTasks.update()
         frGridHeadline.grid(columnspan=2, column=0, row=0, sticky=form.W)
-        frGridHeadline.configure(width=frGridTasks.winfo_width() + frGridItineraries.winfo_width(), height=50)
+        frGridHeadline.configure(width=frGridTasks.winfo_width() + frGridItineraries.winfo_width() + 30 * 4, height=50)
         frGridHeadline.propagate(0)
         frGridHeadline.update()
         
-        #header labels added in top frame, adjusted to be in center of created matrixs
-        form.Label(frGridHeadline, text="Tasks", font=69).place(x=40 + frGridTasks.winfo_width() / 2, y=25, anchor="center")  # x=(middle and padding)/2 and y= middle
-        form.Label(frGridHeadline, text="Itinies", font=50).place(x=frGridTasks.winfo_width() + 90 + frGridItineraries.winfo_width() / 2, y=25, anchor="center") # x=previous + (middle and padding)/2 and y= middle
+        #header labels added in top frame, adjusted to be in center of created
+        #matrixs
+        form.Label(frGridHeadline, text="Times of tasks", font=69,  bg="red").place(x=40 + frGridTasks.winfo_width() / 2, y=25, anchor="center")  # x=(middle and padding)/2 and y= middle
+        form.Label(frGridHeadline, text="Machines in itineraries", font=50,  bg="red").place(x=frGridTasks.winfo_width() + 60 + (frGridItineraries.winfo_width() + 90) / 2, y=25, anchor="center") # x=previous + (middle and padding)/2 and y= middle
         form.Button(self, text="Save values", width=100, height=2, command=self.saveAndCreate).pack(side=form.BOTTOM, padx   = 5, pady  = 10)
 
         #Packing everything
@@ -68,7 +73,7 @@ class GuiMatrixInput(form.Toplevel):
         canvas.xview_moveto(0) 
         canvas.yview_moveto(0)
 
-    def validateNumbers(self, action, index, valueIfAllowed, priorValue, text, validationType, triggerType, widgetName):
+    def validatevalidateFloat(self, action, index, valueIfAllowed, priorValue, text, validationType, triggerType, widgetName):
         """Preserve to enter only specified keys into entry not longer than 6 digits """
         if(len(valueIfAllowed) > 6): #no longer than 6 chars
             return False
@@ -84,7 +89,24 @@ class GuiMatrixInput(form.Toplevel):
         else:
             return True
 
-    def createThatMatrixEntries(self, frGrid, aCols, aRows):
+
+    def validateOnlyInt(self, action, index, valueIfAllowed, priorValue, text, validationType, triggerType, widgetName):
+        """Preserve to enter only specified keys into entry not longer than 6 digits """
+        if(len(valueIfAllowed) > 6): #no longer than 6 chars
+            return False
+        elif(action == '1'): #Type of action (1=insert, 0=delete, -1 for others)
+            if text in '0123456789':
+                try:
+                    float(valueIfAllowed)
+                    return True
+                except ValueError:
+                    return False
+            else:
+                return False
+        else:
+            return True
+
+    def createThatMatrixEntries(self, frGrid, aCols, aRows, aValidateCommand):
         """returns matrix of entries in given Frame of size aCols x aRows """
         #2D array
         entriesArr = [[0 for x in range(aCols)] for x in range(aRows)]
@@ -95,29 +117,52 @@ class GuiMatrixInput(form.Toplevel):
                     ttk.Label(frGrid, text=c + 1, width=8, anchor="center").grid(padx=2, pady=2, row=r, column=c + 1, sticky=form.N)
                     ttk.Label(frGrid, text=r + 1, width=8, anchor="center").grid(padx=2, pady=2, row=r + 1, column=c, sticky=form.N)
 
-        vcmd = (self.register(self.validateNumbers), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        vcmd = (self.register(aValidateCommand), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
         for c in range(1, aCols + 1):
             for r in range(1, aRows + 1):
-                entriesArr[r - 1][c - 1] = ttk.Entry(frGrid, width=8)
+                entriesArr[r - 1][c - 1] = ttk.Entry(frGrid, width=8, validate='key', validatecommand = vcmd)
                 entriesArr[r - 1][c - 1].grid(padx=2, pady=2, row=r, column=c, sticky=form.N)
 
         return entriesArr
 
-
     def saveAndCreate(self):
         """Gets values from all entries in GUI and saves it into the global data lists"""
-        for r in range(len(self.tasksEntries)):
-            for c in range(len(self.tasksEntries[r])):
-                print(str(self.tasksEntries[r][c].get()))     #for each itinerary print task time
-                """
-                TODO: if task.get() == "" then print 0
-                """
-            print("\n")
+        global machinesList, itinerariesList
+        flagForExit = True
 
-        for r in range(len(self.tasksEntries)):
-            for c in range(len(self.tasksEntries[r])):
-                print(str(self.tasksEntries[r][c].get()))     #for each itinerary print machine    
-            print("\n")
+        #create machines
+        for m in range(len(self.timesEntries[0])):
+            machinesList.append(Machine("M" + str(m + 1)))
+        
+        try:
+            #for each itinerary create new one
+            for r in range(len(self.timesEntries)):
+                itin = Itinerary()
+                itin.name = "Itinerary" + str(r + 1)
+                #and for each machine get value after validation for corectness
+                for c in range(len(self.timesEntries[r])):
+                    if self.timesEntries[r][c].get() == "" and self.machinesEntries[r][c].get() == "":
+                        pass
+                    elif (self.timesEntries[r][c].get() == "" and self.machinesEntries[r][c].get() != "") or (self.timesEntries[r][c].get() != "" and self.machinesEntries[r][c].get() == ""):
+                        raise ValueError("Task have no time or machine assigned", (r + 1,c + 1))
+                    else:
+                        #create task in itinerary if machine id exist in range
+                        if int(self.machinesEntries[r][c].get()) in range(1,len(self.timesEntries[r]) + 1):
+                            if float(self.timesEntries[r][c].get()) != 0:
+                                task = Task("Task" + (str(c + 1)), float(self.timesEntries[r][c].get()), machinesList[int(self.machinesEntries[r][c].get()) - 1])
+                                itin.tasksList.append(task)
+                            else:
+                                raise ValueError("Task duration cannot be equal zero!", (r + 1, c + 1))
+                        else:
+                            raise ValueError("Machine ID is invalid!", (r + 1,c + 1))
+                #and add it to global list
+                itinerariesList.append(itin)    
+        except ValueError as errMsg:
+            flagForExit = False
+            msg.showerror("Error", errMsg.args[0] + "\nError involve element at: " + str(errMsg.args[1]))
+            machinesList.clear()
+            itinerariesList.clear()
 
-        print(self.tasksEntries)
-        pass
+        if flagForExit:
+            self.destroy()
+        
