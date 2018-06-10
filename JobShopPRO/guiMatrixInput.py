@@ -12,7 +12,7 @@ class GuiMatrixInput(form.Toplevel):
     def __init__(self, master, aColMachines, aRowItineraries):
         form.Toplevel.__init__(self, master)
 
-        self.title("Enter input data")
+        self.title(STRGS['ENTER_MATRIX_DATA'])
         self.resizable(True, True)
         self.geometry("%dx%d+%d+%d" % (1200,600, int(master.winfo_screenwidth() / 2 - 1200 / 2), int(master.winfo_screenheight() / 2 - 600 / 2)))
         self.minsize(width=500, height=300)
@@ -42,8 +42,8 @@ class GuiMatrixInput(form.Toplevel):
         frGridItineraries.grid(column=1, row=1, padx=30, pady=10)
 
         #here important entries are storaged
-        self.timesEntries = self.createThatMatrixEntries(frGridTasks, aColMachines, aRowItineraries, self.validatevalidateFloat)
-        self.machinesEntries = self.createThatMatrixEntries(frGridItineraries, aColMachines, aRowItineraries, self.validateOnlyInt)
+        self.timesEntries = self.createThatMatrixEntries(frGridTasks, aColMachines, aRowItineraries, validatevalidateFloat)
+        self.machinesEntries = self.createThatMatrixEntries(frGridItineraries, aColMachines, aRowItineraries, validateOnlyInt)
 
         #after creatings frames mandatory is to get the newiest values
         frGridItineraries.update()
@@ -55,17 +55,17 @@ class GuiMatrixInput(form.Toplevel):
         
         #header labels added in top frame, adjusted to be in center of created
         #matrixs
-        form.Label(frGridHeadline, text="Times of tasks", font=69,  bg="red").place(x=40 + frGridTasks.winfo_width() / 2, y=25, anchor="center")  # x=(middle and padding)/2 and y= middle
-        form.Label(frGridHeadline, text="Machines in itineraries", font=50,  bg="red").place(x=frGridTasks.winfo_width() + 60 + (frGridItineraries.winfo_width() + 90) / 2, y=25, anchor="center") # x=previous + (middle and padding)/2 and y= middle
-        form.Button(self, text="Save values", width=100, height=2, command=self.saveAndCreate).pack(side=form.BOTTOM, padx   = 5, pady  = 10)
+        form.Label(frGridHeadline, text=STRGS['TIMES_TASKS'], font=69).place(x=40 + frGridTasks.winfo_width() / 2, y=25, anchor="center")  # x=(middle and padding)/2 and y= middle
+        form.Label(frGridHeadline, text=STRGS['MACHS_ITINERARIES'], font=50).place(x=frGridTasks.winfo_width() + 60 + (frGridItineraries.winfo_width() + 90) / 2, y=25, anchor="center") # x=previous + (middle and padding)/2 and y= middle
+        form.Button(self, text=STRGS['SAVE'], width=100, height=2, command=self.saveAndCreate).pack(side=form.BOTTOM, padx = 5, pady = 10)
 
         #Packing everything
         subFrame.pack(fill = form.BOTH, expand = form.TRUE)
         hscrollbar.pack(fill=form.X, side=form.BOTTOM, expand=form.FALSE)
         vscrollbar.pack(fill=form.Y, side=form.RIGHT, expand=form.FALSE)
         sizegrip.pack(in_= hscrollbar, side = form.BOTTOM, anchor = "se")
-        canvas.pack(side = form.LEFT, padx  = 5, pady  = 5, fill = form.BOTH, expand= form.TRUE)
-        frMain.pack(padx   = 5, pady  = 5, expand = True, fill = form.BOTH)
+        canvas.pack(side = form.LEFT, padx = 5, pady = 5, fill = form.BOTH, expand= form.TRUE)
+        frMain.pack(padx = 5, pady = 5, expand = True, fill = form.BOTH)
 
         canvas.create_window(0,0, window=subFrame, anchor = "center")
         self.update_idletasks() # update geometry
@@ -73,51 +73,18 @@ class GuiMatrixInput(form.Toplevel):
         canvas.xview_moveto(0) 
         canvas.yview_moveto(0)
 
-    def validatevalidateFloat(self, action, index, valueIfAllowed, priorValue, text, validationType, triggerType, widgetName):
-        """Preserve to enter only specified keys into entry not longer than 6 digits """
-        if(len(valueIfAllowed) > 6): #no longer than 6 chars
-            return False
-        elif(action == '1'): #Type of action (1=insert, 0=delete, -1 for others)
-            if text in '0123456789.':
-                try:
-                    float(valueIfAllowed)
-                    return True
-                except ValueError:
-                    return False
-            else:
-                return False
-        else:
-            return True
-
-
-    def validateOnlyInt(self, action, index, valueIfAllowed, priorValue, text, validationType, triggerType, widgetName):
-        """Preserve to enter only specified keys into entry not longer than 6 digits """
-        if(len(valueIfAllowed) > 6): #no longer than 6 chars
-            return False
-        elif(action == '1'): #Type of action (1=insert, 0=delete, -1 for others)
-            if text in '0123456789':
-                try:
-                    float(valueIfAllowed)
-                    return True
-                except ValueError:
-                    return False
-            else:
-                return False
-        else:
-            return True
-
     def createThatMatrixEntries(self, frGrid, aCols, aRows, aValidateCommand):
         """returns matrix of entries in given Frame of size aCols x aRows """
         #2D array
         entriesArr = [[0 for x in range(aCols)] for x in range(aRows)]
-        ttk.Label(frGrid, text="j\k", width=8, anchor="center").grid(padx=2, pady=2, row=0, column=0, sticky=form.N)
+        ttk.Label(frGrid, text="i\m", width=8, anchor="center").grid(padx=2, pady=2, row=0, column=0, sticky=form.N)
         for c in range(aCols):
             for r in range(aRows):
                 if r == 0 or c == 0:
                     ttk.Label(frGrid, text=c + 1, width=8, anchor="center").grid(padx=2, pady=2, row=r, column=c + 1, sticky=form.N)
                     ttk.Label(frGrid, text=r + 1, width=8, anchor="center").grid(padx=2, pady=2, row=r + 1, column=c, sticky=form.N)
 
-        vcmd = (self.register(aValidateCommand), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        vcmd = (self.register(aValidateCommand), self, '%d', '%i', '%P', 6, '%s', '%S', '%v', '%V', '%W')
         for c in range(1, aCols + 1):
             for r in range(1, aRows + 1):
                 entriesArr[r - 1][c - 1] = ttk.Entry(frGrid, width=8, validate='key', validatecommand = vcmd)
@@ -138,7 +105,7 @@ class GuiMatrixInput(form.Toplevel):
             #for each itinerary create new one
             for r in range(len(self.timesEntries)):
                 itin = Itinerary()
-                itin.name = "Itinerary" + str(r + 1)
+                itin.name = "Itinerary " + str(r + 1)
                 #and for each machine get value after validation for corectness
                 for c in range(len(self.timesEntries[r])):
                     if self.timesEntries[r][c].get() == "" and self.machinesEntries[r][c].get() == "":
@@ -149,7 +116,7 @@ class GuiMatrixInput(form.Toplevel):
                         #create task in itinerary if machine id exist in range
                         if int(self.machinesEntries[r][c].get()) in range(1,len(self.timesEntries[r]) + 1):
                             if float(self.timesEntries[r][c].get()) != 0:
-                                task = Task("Task" + (str(c + 1)), float(self.timesEntries[r][c].get()), machinesList[int(self.machinesEntries[r][c].get()) - 1])
+                                task = Task("Task " + (str(c + 1)), float(self.timesEntries[r][c].get()), machinesList[int(self.machinesEntries[r][c].get()) - 1])
                                 itin.tasksList.append(task)
                             else:
                                 raise ValueError("Task duration cannot be equal zero!", (r + 1, c + 1))
@@ -159,7 +126,7 @@ class GuiMatrixInput(form.Toplevel):
                 itinerariesList.append(itin)    
         except ValueError as errMsg:
             flagForExit = False
-            msg.showerror("Error", errMsg.args[0] + "\nError involve element at: " + str(errMsg.args[1]))
+            msg.showerror(STRGS['ERR'], errMsg.args[0] + STRGS['MSG_ERR_INVOLVE_TASK'] + str(errMsg.args[1]))
             machinesList.clear()
             itinerariesList.clear()
 

@@ -48,7 +48,6 @@
     <Compile Include="guiTaskNew.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="JobShopPRO.py" />
     <Compile Include="root.py">
       <SubType>Code</SubType>
     </Compile>

@@ -25,23 +25,23 @@ class GuiMain(form.Frame):
         dataOption = form.Menu(menuBar, tearoff=0)
         aboutOption = form.Menu(menuBar, tearoff=0)
 
-        setupOption.add_command(label="Enter data in matrix", command=self.popMatrixDlg)
+        setupOption.add_command(label=STRGS['ENTER_MATRIX_DATA'], command=self.popMatrixDlg)
         setupOption.add_separator()
-        setupOption.add_command(label="Machines", command=self.popMachinesDlg)
-        setupOption.add_command(label="Itineraries", command=self.popItinerariesDlg)
+        setupOption.add_command(label=STRGS['MACHS'], command=self.popMachinesDlg)
+        setupOption.add_command(label=STRGS['ITINERARIES'], command=self.popItinerariesDlg)
         setupOption.add_separator()
-        setupOption.add_command(label="Exit", command=self.exitProgram)
+        setupOption.add_command(label=STRGS['EXIT'], command=self.exitProgram)
 
-        dataOption.add_command(label="Import from file...", command=self.dataFileImport)
-        dataOption.add_command(label="Export to file...", command=self.dataFileExport)
+        dataOption.add_command(label=STRGS['FILE_IMPORT'], command=self.dataFileImport)
+        dataOption.add_command(label=STRGS['FILE_EXPORT'], command=self.dataFileExport)
         
         #TODO: to dataOption create new window with logs?
 
-        aboutOption.add_command(label="About", command=self.popAboutDlg)
+        aboutOption.add_command(label=STRGS['ABOUT'], command=self.popAboutDlg)
       
-        menuBar.add_cascade(label="Setup", menu=setupOption)
-        menuBar.add_cascade(label="Data", menu=dataOption)
-        menuBar.add_cascade(label="Information", menu=aboutOption)
+        menuBar.add_cascade(label=STRGS['SETUP'], menu=setupOption)
+        menuBar.add_cascade(label=STRGS['DATA'], menu=dataOption)
+        menuBar.add_cascade(label=STRGS['DETAILS'], menu=aboutOption)
 
         tabController = ttk.Notebook(master, width=40)
         frTabMain = ttk.Frame(tabController)
@@ -50,17 +50,17 @@ class GuiMain(form.Frame):
         frTabLifo = ttk.Frame(tabController)
         frTabFifo = ttk.Frame(tabController)
 
-        tabController.add(frTabMain, text="Setup")
+        tabController.add(frTabMain, text=STRGS['SETUP'])
         tabController.add(frTabLPT, text="LPT")
         tabController.add(frTabSPT, text="SPT")
         tabController.add(frTabLifo, text="LIFO")
         tabController.add(frTabFifo, text="FIFO")
         tabController.pack(expand=1, fill="both")
 
-        ttk.Button(frTabMain, text="Machines", width=20, command=self.popMachinesDlg).grid(column=0, row=0, padx=5, pady=5)
-        ttk.Button(frTabMain, text="Itineraries", width=20, command=self.popItinerariesDlg).grid(column=0, row=1, padx=5, pady=5)
-        ttk.Button(frTabMain, text="Enter data in matrix", width=20, command=self.popMatrixDlg).grid(column=0, row=2, padx=5, pady=5)
-        form.Button(frTabMain, text="Create graphs", width=17, height=8, command=self.createGraphs).grid(column=0, row=3, padx=5, pady=5)
+        ttk.Button(frTabMain, text=STRGS['MACHS'], width=20, command=self.popMachinesDlg).grid(column=0, row=0, padx=5, pady=5)
+        ttk.Button(frTabMain, text=STRGS['ITINERARIES'], width=20, command=self.popItinerariesDlg).grid(column=0, row=1, padx=5, pady=5)
+        ttk.Button(frTabMain, text=STRGS['ENTER_MATRIX_DATA'], width=20, command=self.popMatrixDlg).grid(column=0, row=2, padx=5, pady=5)
+        form.Button(frTabMain, text=STRGS['CALC'], width=17, height=8, command=self.createGraphs).grid(column=0, row=3, padx=5, pady=5)
 
         global machinesList, itinerariesList
         self.lblMachinesCount = ttk.Label(frTabMain)
@@ -78,7 +78,7 @@ class GuiMain(form.Frame):
 
     def popAboutDlg(self):
         """Shows info about program and author"""
-        msg.showinfo("About JobShopPRO", "This is JobShopPRO\nMade as Master Thesis at AGH University\nby Pawel Kastelik, 2018")
+        msg.showinfo(STRGS['ABOUT_TITLE'], STRGS['ABOUT_MESG'])
         pass
 
     def popMachinesDlg(self):
@@ -91,7 +91,7 @@ class GuiMain(form.Frame):
         """Initiates procedure of entering values by matrix"""
         global machinesList, itinerariesList
         if len(machinesList) or len(itinerariesList):
-            answer = msg.askyesno("Warning","using this option will erase current data. are you sure?", icon="warning")
+            answer = msg.askyesno(STRGS['WARN'],STRGS['MSG_WARN_ERASE_DATA'], icon="warning")
             if answer:
                 machinesList.clear()
                 itinerariesList.clear()
@@ -119,7 +119,7 @@ class GuiMain(form.Frame):
 
     def exitProgram(self):
         """Quit everything"""
-        answer = msg.askyesno("Exit", "For sure you want to quit?")
+        answer = msg.askyesno(STRGS['EXIT'], STRGS['MSG_REALLY_QUIT'])
         if answer:
             self.quit()
             self.destroy()
@@ -140,7 +140,7 @@ class GuiMain(form.Frame):
     def updateMainLabelsConfiguration(self):
         """Updates labels with actual amount of items in global lists"""
         global machinesList, itinerariesList
-        self.lblItinerariesCount.config(text="Created " + str(len(itinerariesList)) + " itineraries")
-        self.lblMachinesCount.config(text="Created " + str(len(machinesList)) + " machines")
+        self.lblItinerariesCount.config(text=STRGS['CREATED'] + str(len(itinerariesList)) + " " + STRGS['MACHS'])
+        self.lblMachinesCount.config(text=STRGS['CREATED'] + str(len(machinesList)) + " " + STRGS['ITINERARIES'])
         
     #TODO: favicon

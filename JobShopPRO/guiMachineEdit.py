@@ -42,7 +42,7 @@ class GuiMachineEdit(form.Toplevel):
         global machinesList
         for index, machObj in enumerate(machinesList):
             if machObj.name == self.editedValue.get() and self.editedItemIndex != index:        #prevent form being unable to edit the same item
-                msg.showerror("Illegal name", machObj.name + " exist. Enter diffrent name.")
+                msg.showerror(STRGS['ERR_ILLEGAL'], machObj.name + STRGS['ERR_EXIST_DIFF_NAME'])
                 return
         machinesList[self.editedItemIndex].name = self.editedValue.get()
         self.destroy()    

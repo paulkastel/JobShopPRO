@@ -11,11 +11,11 @@ class GuiItinerary(form.Frame):
     def __init__(self, master):
         form.Frame.__init__(self, master)
 
-        master.title(STRGS['TITLE_ITINERARIES'])
+        master.title(STRGS['ITINERARIES'])
         master.geometry("%dx%d+%d+%d" % (350,400, int(master.winfo_screenwidth() / 2 - 350 / 2), int(master.winfo_screenheight() / 2 - 400 / 2)))
         master.resizable(False, False)
 
-        frItineraries = ttk.LabelFrame(master, text=STRGS['TITLE_ITINERARIES'])
+        frItineraries = ttk.LabelFrame(master, text=STRGS['ITINERARIES'])
         frItineraries.grid(column=0, row=0, padx=5, pady=5)
 
         #listbox with itineraries

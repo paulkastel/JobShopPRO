@@ -1,7 +1,7 @@
 import tkinter as form
 from tkinter import ttk
 from tkinter import messagebox
-from globalData import machinesList, STRGS
+from globalData import machinesList, STRGS, validatevalidateFloat
 import sys
 #=========================================================================================
 class GuiTaskNew(form.Toplevel):
@@ -28,7 +28,7 @@ class GuiTaskNew(form.Toplevel):
         self.entTaskNameVar.set(aNewTask.name)
 
         self.spbTaskDurationVar = form.DoubleVar()
-        vcmd = (master.register(self.validateNumbers), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        vcmd = (master.register(validatevalidateFloat), self, '%d', '%i', '%P', 11, '%s', '%S', '%v', '%V', '%W')
         self.spbTaskDuration = form.Spinbox(frTaskNew, textvariable=self.spbTaskDurationVar, width=15, from_=0, to=sys.float_info.max, format="%.2f",increment=0.01, validate='key', validatecommand = vcmd)
         self.spbTaskDuration.grid(column=1, row=1, padx=3, pady=3) 
         self.spbTaskDurationVar.set(aNewTask.duration)
@@ -73,16 +73,3 @@ class GuiTaskNew(form.Toplevel):
             messagebox.showerror(STRGS['MSG_ERR_ITINERARY_NO_NAME'], STRGS['MSG_ERR_ITINERARY_ENTER_NAME'])
         pass
 
-    def validateNumbers(self, action, index, valueIfAllowed, priorValue, text, validationType, triggerType, widgetName):
-        """Preserve to enter only specified keys into entry """
-        if(action == '1'): #user can delete input e.g. erase wrong number and enter it again
-            if text in '0123456789.':
-                try:
-                    float(valueIfAllowed)
-                    return True
-                except ValueError:
-                    return False
-            else:
-                return False
-        else:
-            return True

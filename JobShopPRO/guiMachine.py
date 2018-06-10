@@ -76,7 +76,7 @@ class GuiMachine(form.Frame):
             for itinObj in itinerariesList:
                 for taskObj in itinObj.tasksList:
                     if taskObj.machine.name == self.lboxMachineList.get(form.ANCHOR):
-                        msg.showerror("Illegal action", taskObj.machine.name + " is used in " + taskObj.name + " in " + itinObj.name + " \nand cannot be deleted")
+                        msg.showerror(STRGS['ERR_ILLEGAL'], taskObj.machine.name + " is used in " + taskObj.name + " in " + itinObj.name + " \nand cannot be deleted")
                         return
             self.lboxMachineList.delete(index)
             global machinesList
@@ -95,7 +95,7 @@ class GuiMachine(form.Frame):
             for itinObj in itinerariesList:
                 for taskObj in itinObj.tasksList:
                     if taskObj.machine.name == self.lboxMachineList.get(self.lboxMachineList.curselection()):
-                        msg.showwarning("Warning!", taskObj.machine.name + " is in use by task.\nThink about whether you know what you are doing")
+                        msg.showwarning(STRGS['WARN'], taskObj.machine.name + STRGS['MSG_WARN_MACH_IN_USE'])
                         break
             guiMachineEdit.GuiMachineEdit(self, index).wait_window()
 
