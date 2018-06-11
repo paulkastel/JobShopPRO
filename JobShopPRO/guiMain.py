@@ -1,10 +1,13 @@
 import tkinter as form
 from tkinter import ttk
-from tkinter.filedialog import asksaveasfilename
+from tkinter.filedialog import asksaveasfilename, askopenfilename
 import guiMachine
 import guiItinerary
 import guiMatrixParam
 import guiMatrixInput
+from clMachine import Machine
+from clItinerary import Itinerary
+from clTask import Task
 from globalData import *
 from tkinter import messagebox as msg
 from time import gmtime, strftime
@@ -95,8 +98,7 @@ class GuiMain(form.Frame):
         if len(machinesList) or len(itinerariesList):
             answer = msg.askyesno(STRGS['WARN'],STRGS['MSG_WARN_ERASE_DATA'], icon="warning")
             if answer:
-                machinesList.clear()
-                itinerariesList.clear()
+                pass
             else:
                 return
 
@@ -110,6 +112,8 @@ class GuiMain(form.Frame):
         guiMatrixParam.GuiMatrixParam(self, arrAmount).wait_window()
         self.focus_force()
         if all(x != 0 for x in arrAmount):
+            machinesList.clear()
+            itinerariesList.clear()
             guiMatrixInput.GuiMatrixInput(self, arrAmount[0], arrAmount[1]).wait_window()
         self.updateMainLabelsConfiguration()    
 
@@ -132,8 +136,84 @@ class GuiMain(form.Frame):
         pass
 
     def dataFileImport(self):
-        print("#TODO: import")
-        pass
+        """Tries to import JSON JobShop PRO file to program"""
+        savePath = askopenfilename(defaultextension=".json", filetypes =(("JSON files",".json"),("Allfiles","*.*")))
+
+        if savePath == "":
+            return
+        
+        importedData = None
+
+        #in case of corrupted file or entering wrong file create backup of existing data in program
+        global machinesList, itinerariesList
+        machinesListBackup = machinesList[:]        #create backup by copying by slicing
+        itinerariesListBackup = itinerariesList[:]
+        machinesList.clear()
+        itinerariesList.clear()
+
+        try:
+            with open(savePath, 'r') as infile:
+                importedData = json.loads(infile.read())
+
+                if list(importedData.keys()) == ["itineraries", "machines"]:
+                    imMachines = importedData['machines']
+                    imItineraries = importedData['itineraries']
+
+                    if len(list(imMachines)) > 0 and len(list(imItineraries)) > 0:
+                        for index, machDict, in enumerate(imMachines):
+                            if list(machDict.keys()) == ["machineName"]:
+                                machinesList.append(Machine(imMachines[index]['machineName']))
+                            else:
+                                raise ValueError("Machine is not correct")
+                    
+                        for index, itinDict in enumerate(imItineraries):
+                            if list(itinDict.keys()) == ["itineraryName", "tasksList"]:
+                                iti = Itinerary()
+                                iti.name = itinDict['itineraryName']
+                                if len(list(itinDict['tasksList'])) > 0:
+                                    itiTaskList = itinDict['tasksList']
+
+                                    for index, taskDict in enumerate(itiTaskList):
+                                        if list(itiTaskList[index].keys()) == ['taskName', 'taskMachine', 'taskDuration']:
+                                            taskMach = itiTaskList[index]['taskMachine']
+                                            if list(taskMach.keys()) == ["machineName"]:
+                                                iti.tasksList.append(Task(itiTaskList[index]['taskName'], float(itiTaskList[index]['taskDuration']), Machine(taskMach["machineName"])))
+                                            else:
+                                                raise ValueError("Machine in task is not correct")   
+                                        else:
+                                            raise ValueError("One of tasks in itinerary is not correct")
+                                    itinerariesList.append(iti)
+                                else:
+                                    raise ValueError("List of task in itinerary is not correct")
+                            else:
+                                raise ValueError("Structure of itineraries is invalid!")
+                    else:
+                        raise ValueError("Itineraries and machines lists are empty or structure is not correct!")
+                else:
+                    raise ValueError("Itineraries or machines structure is invalid!")
+
+                for testItinObj in itinerariesList:
+                    for testTaskObj in testItinObj.tasksList:
+                        if not testTaskObj.machine.name in [mach.name for mach in machinesList]:
+                            raise ValueError(testTaskObj.name + " in " + testItinObj.name + " have invalid machine.\nData is incopatible")            
+            
+            #TODO: checking if values are not null  or empty and raise exception!
+            #TODO: change var names
+            msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_IMPORTED'])
+
+            machinesListBackup = None
+            itinerariesListBackup = None
+
+        except ValueError as err:
+            msg.showerror(STRGS['ERR'], err)
+            machinesList = machinesListBackup
+            itinerariesList = itinerariesListBackup
+        except:
+            msg.showerror("Unexpected " + STRGS['ERR'])
+            machinesList = machinesListBackup
+            itinerariesList = itinerariesListBackup
+        finally:
+            self.updateMainLabelsConfiguration()
 
     def dataFileExport(self):
         """Export all data (project) as json file in specified path"""
@@ -150,14 +230,15 @@ class GuiMain(form.Frame):
         for mach in machinesList:
             exMachinesToJSON.append(mach.exportToDict())
         
-        #to have nice structure of json file we store dictionary data in one file
+        #to have nice structure of json file we store dictionary data in one
+        #file
         exportData = {}
         exportData['itineraries'] = exItinerariesToJSON
         exportData['machines'] = exMachinesToJSON
 
         try:
-            fileName = STRGS['TITLE_PROGRAM']+" - projectExport " + strftime("%Y%m%d%H%M", gmtime()) + ".json"
-            savePath = asksaveasfilename(initialfile=fileName)  #open save file window
+            fileName = STRGS['TITLE_PROGRAM'] + " - projectExport " + strftime("%Y%m%d%H%M", gmtime()) + ".json"
+            savePath = asksaveasfilename(initialfile=fileName, defaultextension=".json", filetypes =(("JSON files", ".json"),("All files", "*.*")))  #open save file window
             
             if savePath != "":
                 with open(savePath, 'w', encoding='utf-8') as outfile:
