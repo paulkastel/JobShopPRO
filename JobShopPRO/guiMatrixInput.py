@@ -42,7 +42,7 @@ class GuiMatrixInput(form.Toplevel):
         frGridItineraries.grid(column=1, row=1, padx=30, pady=10)
 
         #here important entries are storaged
-        self.timesEntries = self.createThatMatrixEntries(frGridTasks, aColMachines, aRowItineraries, validatevalidateFloat)
+        self.timesEntries = self.createThatMatrixEntries(frGridTasks, aColMachines, aRowItineraries, validateFloat)
         self.machinesEntries = self.createThatMatrixEntries(frGridItineraries, aColMachines, aRowItineraries, validateOnlyInt)
 
         #after creatings frames mandatory is to get the newiest values

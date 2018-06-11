@@ -1,3 +1,5 @@
+import json
+
 #=========================================================================================
 
 machinesList = []
@@ -20,6 +22,7 @@ STRGS = {
     'ERR_EXIST_DIFF_NAME':" exist. Enter diffrent name.",
     'MSG_WARN_MACH_IN_USE':" is in use by task.\nThink about whether you know what you are doing.",
     'MSG_WARN_ERASE_DATA':"Using this option will erase existing data. Are you REALLY sure?",
+    'MSG_WARN_NO_EXPORT':"Nothing to export! Create machines or itineraries",
     'MSG_ERR_NO_MACH_CREATE' : "No machines were created!",
     'MSG_ERR_NO_MACH_NO_ITINERS' : "You can't create itinerary if there is no machines.",
     'MSG_ERR_ITINERARY_NO_NAME': "The itinerary have no name!",
@@ -33,6 +36,8 @@ STRGS = {
     'MSG_ERR_VALUE_NO_ZERO': "Value cannot be equal zero!",
     'MSG_ERR_TASK_CORRECT_DURATION' : "Please, check if value is correct. Duration time should be greater than zero.",
     'MSG_REALLY_QUIT':"Are you sure you want to quit program?",
+    'MSG_OK_FILE_EXPORTED':"File exported sucessfully!",
+    'MSG_OK_FILE_IMPORTED':"File imported sucessfully!",
     'ITINERARY_NAME' : "Itinerary name:",
     'TASK_DETAIL' : "Task detail",
     'NAME' : "Name:",
@@ -52,8 +57,8 @@ STRGS = {
     'TASKS_INITERARY': "Tasks in itinerary",
     'TIMES_TASKS':"Times of tasks",
     'EXIT':"Exit",
-    'FILE_IMPORT':"Import from file...",
-    'FILE_EXPORT':"Export to file...",
+    'M_FILE_IMPORT':"Import from file...",
+    'M_FILE_EXPORT':"Export to file...",
     'ABOUT':"About",
     'ABOUT_TITLE':"About JobShopPRO",
     'ABOUT_MESG':"This is JobShopPRO\nMade as Master Thesis at AGH University\nby Pawel Kastelik, 2018",
@@ -68,7 +73,7 @@ STRGS = {
 """Dictionary with strings used to gui"""
 
 
-def validatevalidateFloat(self, action, index, valueIfAllowed, maxCount, priorValue, text, validationType, triggerType, widgetName):
+def validateFloat(self, action, index, valueIfAllowed, maxCount, priorValue, text, validationType, triggerType, widgetName):
     """Preserve to enter only specified keys into entry not longer than maxCount digits """
     if len(valueIfAllowed) > int(maxCount): 
         return False

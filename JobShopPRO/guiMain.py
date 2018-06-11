@@ -1,11 +1,13 @@
 import tkinter as form
 from tkinter import ttk
+from tkinter.filedialog import asksaveasfilename
 import guiMachine
 import guiItinerary
 import guiMatrixParam
 import guiMatrixInput
 from globalData import *
 from tkinter import messagebox as msg
+from time import gmtime, strftime
 #=========================================================================================
 class GuiMain(form.Frame):
     """Main form to manage all the program and options"""
@@ -32,8 +34,8 @@ class GuiMain(form.Frame):
         setupOption.add_separator()
         setupOption.add_command(label=STRGS['EXIT'], command=self.exitProgram)
 
-        dataOption.add_command(label=STRGS['FILE_IMPORT'], command=self.dataFileImport)
-        dataOption.add_command(label=STRGS['FILE_EXPORT'], command=self.dataFileExport)
+        dataOption.add_command(label=STRGS['M_FILE_IMPORT'], command=self.dataFileImport)
+        dataOption.add_command(label=STRGS['M_FILE_EXPORT'], command=self.dataFileExport)
         
         #TODO: to dataOption create new window with logs?
 
@@ -134,13 +136,40 @@ class GuiMain(form.Frame):
         pass
 
     def dataFileExport(self):
-        print("#TODO: export")
-        pass
+        """Export all data (project) as json file in specified path"""
+        global machinesList, itinerariesList
+        if not len(machinesList) and not len(itinerariesList):
+            msg.showwarning(STRGS['WARN'], STRGS['MSG_WARN_NO_EXPORT'])
+            return
+
+        exItinerariesToJSON = []       #export machines in kinda serializable form
+        for itin in itinerariesList:
+            exItinerariesToJSON.append(itin.exportToDict()) 
+
+        exMachinesToJSON = [] 
+        for mach in machinesList:
+            exMachinesToJSON.append(mach.exportToDict())
+        
+        #to have nice structure of json file we store dictionary data in one file
+        exportData = {}
+        exportData['itineraries'] = exItinerariesToJSON
+        exportData['machines'] = exMachinesToJSON
+
+        try:
+            fileName = STRGS['TITLE_PROGRAM']+" - projectExport " + strftime("%Y%m%d%H%M", gmtime()) + ".json"
+            savePath = asksaveasfilename(initialfile=fileName)  #open save file window
+            
+            if savePath != "":
+                with open(savePath, 'w', encoding='utf-8') as outfile:
+                    json.dump(exportData, outfile, indent=4)    #put serialzed json data in outfile saved in savePath directory
+                msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_EXPORTED'])
+        except Exception as err:
+            msg.showerror(STRGS['ERR'], err)
 
     def updateMainLabelsConfiguration(self):
         """Updates labels with actual amount of items in global lists"""
         global machinesList, itinerariesList
-        self.lblItinerariesCount.config(text=STRGS['CREATED'] + str(len(itinerariesList)) + " " + STRGS['MACHS'])
-        self.lblMachinesCount.config(text=STRGS['CREATED'] + str(len(machinesList)) + " " + STRGS['ITINERARIES'])
+        self.lblItinerariesCount.config(text=STRGS['CREATED'] + str(len(itinerariesList)) + " " + STRGS['ITINERARIES'])
+        self.lblMachinesCount.config(text=STRGS['CREATED'] + str(len(machinesList)) + " " + STRGS['MACHS'])
         
     #TODO: favicon

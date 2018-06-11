@@ -1,7 +1,7 @@
 import tkinter as form
 from tkinter import ttk
 from tkinter import messagebox
-from globalData import machinesList, STRGS, validatevalidateFloat
+from globalData import machinesList, STRGS, validateFloat
 import sys
 #=========================================================================================
 class GuiTaskNew(form.Toplevel):
@@ -28,7 +28,7 @@ class GuiTaskNew(form.Toplevel):
         self.entTaskNameVar.set(aNewTask.name)
 
         self.spbTaskDurationVar = form.DoubleVar()
-        vcmd = (master.register(validatevalidateFloat), self, '%d', '%i', '%P', 11, '%s', '%S', '%v', '%V', '%W')
+        vcmd = (master.register(validateFloat), self, '%d', '%i', '%P', 11, '%s', '%S', '%v', '%V', '%W')
         self.spbTaskDuration = form.Spinbox(frTaskNew, textvariable=self.spbTaskDurationVar, width=15, from_=0, to=sys.float_info.max, format="%.2f",increment=0.01, validate='key', validatecommand = vcmd)
         self.spbTaskDuration.grid(column=1, row=1, padx=3, pady=3) 
         self.spbTaskDurationVar.set(aNewTask.duration)
