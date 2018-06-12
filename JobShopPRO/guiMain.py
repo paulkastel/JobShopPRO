@@ -11,6 +11,8 @@ from clTask import Task
 from globalData import *
 from tkinter import messagebox as msg
 from time import gmtime, strftime
+import json
+import sys
 #=========================================================================================
 class GuiMain(form.Frame):
     """Main form to manage all the program and options"""
@@ -137,81 +139,105 @@ class GuiMain(form.Frame):
 
     def dataFileImport(self):
         """Tries to import JSON JobShop PRO file to program"""
-        savePath = askopenfilename(defaultextension=".json", filetypes =(("JSON files",".json"),("Allfiles","*.*")))
+        global machinesList, itinerariesList
+        if len(machinesList) or len(itinerariesList):
+            answer = msg.askyesno(STRGS['WARN'],STRGS['MSG_WARN_ERASE_DATA'], icon="warning")
+            if answer:
+                pass
+            else:
+                return
 
-        if savePath == "":
-            return
-        
+        savePath = askopenfilename(defaultextension=".json", filetypes =(("JSON files",".json"),("All files","*.*")))
+
+        if not isStringNotBlank(savePath):
+            return              #cancelled?  stop this madness now
+       
+        #in case of corrupted file or entering wrong file create backup of
+        #existing data in program
+        machinesListBackup = machinesList[:]                    #create backup by copying by slicing
+        itinerariesListBackup = itinerariesList[:]
+
         importedData = None
 
-        #in case of corrupted file or entering wrong file create backup of existing data in program
-        global machinesList, itinerariesList
-        machinesListBackup = machinesList[:]        #create backup by copying by slicing
-        itinerariesListBackup = itinerariesList[:]
-        machinesList.clear()
-        itinerariesList.clear()
-
         try:
-            with open(savePath, 'r') as infile:
-                importedData = json.loads(infile.read())
+            if savePath[-5:].upper().lower() != ".json":        #insensitive extension comparision
+                raise ValueError("This is not JSON file!")
 
-                if list(importedData.keys()) == ["itineraries", "machines"]:
-                    imMachines = importedData['machines']
-                    imItineraries = importedData['itineraries']
+            with open(savePath, 'r', encoding="utf8") as inputfile:              #read file from path
+                importedData = json.loads(inputfile.read())
 
-                    if len(list(imMachines)) > 0 and len(list(imItineraries)) > 0:
-                        for index, machDict, in enumerate(imMachines):
-                            if list(machDict.keys()) == ["machineName"]:
+            if list(importedData.keys()) == ["itineraries", "machines"]:
+                imMachines = importedData['machines']                               #is firstlevel structure is correct, then split
+                imItineraries = importedData['itineraries']
+                
+                machinesList.clear()
+                itinerariesList.clear()
+
+                if len(list(imMachines)) > 0 and len(list(imItineraries)) > 0:
+                    for index, dictMachine, in enumerate(imMachines):           
+                        if list(dictMachine.keys()) == ["machineName"]:                         #if structure of machine element is correct
+                            if isStringNotBlank(imMachines[index]['machineName']):              #if not empty, parse values from dictionary
                                 machinesList.append(Machine(imMachines[index]['machineName']))
                             else:
-                                raise ValueError("Machine is not correct")
+                                raise ValueError("Name of machine is empty. This is illegal!")
+                        else:
+                            raise ValueError("Machine is not correct")
                     
-                        for index, itinDict in enumerate(imItineraries):
-                            if list(itinDict.keys()) == ["itineraryName", "tasksList"]:
-                                iti = Itinerary()
-                                iti.name = itinDict['itineraryName']
-                                if len(list(itinDict['tasksList'])) > 0:
-                                    itiTaskList = itinDict['tasksList']
+                    for index, dictItinerary in enumerate(imItineraries):                           #for each itinerary check structure
+                        if list(dictItinerary.keys()) == ["itineraryName", "tasksList"]:
+                            tmpItinerary = Itinerary()
 
-                                    for index, taskDict in enumerate(itiTaskList):
-                                        if list(itiTaskList[index].keys()) == ['taskName', 'taskMachine', 'taskDuration']:
-                                            taskMach = itiTaskList[index]['taskMachine']
-                                            if list(taskMach.keys()) == ["machineName"]:
-                                                iti.tasksList.append(Task(itiTaskList[index]['taskName'], float(itiTaskList[index]['taskDuration']), Machine(taskMach["machineName"])))
+                            if isStringNotBlank(dictItinerary['itineraryName']):                    #and correctness
+                                tmpItinerary.name = dictItinerary['itineraryName']
+
+                                if len(list(dictItinerary['tasksList'])) > 0:                       #if tasks not empty
+                                    tmpItineraryTasks = dictItinerary['tasksList']
+
+                                    for i, taskDict in enumerate(tmpItineraryTasks):                #check structure of each task in itinerary
+                                        if list(tmpItineraryTasks[i].keys()) == ['taskName', 'taskMachine', 'taskDuration']:
+                                            taskMachine = tmpItineraryTasks[i]['taskMachine']
+
+                                            if list(taskMachine.keys()) == ["machineName"]:                     #check corectness of elements
+                                                if isStringNotBlank(tmpItineraryTasks[i]['taskName']) and isStringNotBlank(taskMachine["machineName"]) and tmpItineraryTasks[i]['taskDuration'] > 0:
+
+                                                    tmpItinerary.tasksList.append(Task(tmpItineraryTasks[i]['taskName'], 
+                                                                                        float(tmpItineraryTasks[i]['taskDuration']),     #parse values to taskList
+                                                                                        Machine(taskMachine["machineName"])))
+                                                else:
+                                                    raise ValueError("Task properties are incorrect.")          #anything wrong?  throw exception!
                                             else:
                                                 raise ValueError("Machine in task is not correct")   
                                         else:
                                             raise ValueError("One of tasks in itinerary is not correct")
-                                    itinerariesList.append(iti)
+                                    itinerariesList.append(tmpItinerary)            #add itinerary to global list, beacuse parsing finished
                                 else:
                                     raise ValueError("List of task in itinerary is not correct")
                             else:
-                                raise ValueError("Structure of itineraries is invalid!")
-                    else:
-                        raise ValueError("Itineraries and machines lists are empty or structure is not correct!")
+                                raise ValueError("Itinerary name is empty. This is illegal!")
+                        else:
+                            raise ValueError("Structure of itineraries is invalid!")
                 else:
-                    raise ValueError("Itineraries or machines structure is invalid!")
+                    raise ValueError("Itineraries or machines lists is empty or structure is not correct!")
+            else:
+                raise ValueError("Itineraries or machines structure is invalid!\nProbably not an JobShop JSON file!")
 
-                for testItinObj in itinerariesList:
-                    for testTaskObj in testItinObj.tasksList:
-                        if not testTaskObj.machine.name in [mach.name for mach in machinesList]:
-                            raise ValueError(testTaskObj.name + " in " + testItinObj.name + " have invalid machine.\nData is incopatible")            
+            #at this stage values should be OK, but check if machines are
+            #not twisted
+            for testItinObj in itinerariesList:
+                for testTaskObj in testItinObj.tasksList:
+                    if not testTaskObj.machine.name in [mach.name for mach in machinesList]:
+                        raise ValueError(testTaskObj.name + " in " + testItinObj.name + " have invalid machine.\nData is incopatible")            
             
-            #TODO: checking if values are not null  or empty and raise exception!
-            #TODO: change var names
-            msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_IMPORTED'])
-
-            machinesListBackup = None
-            itinerariesListBackup = None
-
+            msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_IMPORTED'])        #notify user that succeded
+ 
         except ValueError as err:
             msg.showerror(STRGS['ERR'], err)
-            machinesList = machinesListBackup
-            itinerariesList = itinerariesListBackup
+            machinesList = machinesListBackup[:]
+            itinerariesList = itinerariesListBackup[:]
         except:
-            msg.showerror("Unexpected " + STRGS['ERR'])
-            machinesList = machinesListBackup
-            itinerariesList = itinerariesListBackup
+            msg.showerror("Unexpected " + STRGS['ERR'], sys.exc_info())    #in case if anything unexpected happen pop up
+            machinesList = machinesListBackup[:]                            #and restore deleted data from backup
+            itinerariesList = itinerariesListBackup[:]
         finally:
             self.updateMainLabelsConfiguration()
 
@@ -252,5 +278,5 @@ class GuiMain(form.Frame):
         global machinesList, itinerariesList
         self.lblItinerariesCount.config(text=STRGS['CREATED'] + str(len(itinerariesList)) + " " + STRGS['ITINERARIES'])
         self.lblMachinesCount.config(text=STRGS['CREATED'] + str(len(machinesList)) + " " + STRGS['MACHS'])
-        
+    
     #TODO: favicon

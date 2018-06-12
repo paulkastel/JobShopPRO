@@ -1,5 +1,3 @@
-import json
-
 #=========================================================================================
 
 machinesList = []
@@ -21,8 +19,8 @@ STRGS = {
     'ERR_ILLEGAL': "Illegal action!",
     'ERR_EXIST_DIFF_NAME':" exist. Enter diffrent name.",
     'MSG_WARN_MACH_IN_USE':" is in use by task.\nThink about whether you know what you are doing.",
-    'MSG_WARN_ERASE_DATA':"Using this option will erase existing data. Are you REALLY sure?",
-    'MSG_WARN_NO_EXPORT':"Nothing to export! Create machines or itineraries",
+    'MSG_WARN_ERASE_DATA':"Using this option will replace existing data. Are you REALLY sure?",
+    'MSG_WARN_NO_EXPORT':"Nothing to export! Create machines and itineraries",
     'MSG_ERR_NO_MACH_CREATE' : "No machines were created!",
     'MSG_ERR_NO_MACH_NO_ITINERS' : "You can't create itinerary if there is no machines.",
     'MSG_ERR_ITINERARY_NO_NAME': "The itinerary have no name!",
@@ -104,3 +102,7 @@ def validateOnlyInt(self, action, index, valueIfAllowed, maxCount, priorValue, t
             return False
     else:
         return True
+
+def isStringNotBlank(stringValue):
+    "if string is empty or none return false"
+    return bool(stringValue and stringValue.strip())
