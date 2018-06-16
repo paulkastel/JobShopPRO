@@ -2,15 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>7ee04bf4-c6ac-4b14-8cbd-93fddf8b8a7f</ProjectGuid>
+    <ProjectGuid>ec3c38dd-64ec-4278-b819-4d8a56f63d60</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>root.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>JobShopPRO</Name>
-    <RootNamespace>JobShopPRO</RootNamespace>
+    <Name>JobShopPro</Name>
+    <RootNamespace>JobShopPro</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,13 +21,22 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="clItinerary.py">
+    <Compile Include="algorithms.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clMachine.py">
+    <Compile Include="chartGanttCreator.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="clTask.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clItinerary.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clJob.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="clMachine.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="globalData.py">
@@ -39,19 +48,25 @@
     <Compile Include="guiItineraryNew.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="guiMachine.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="guiMachineEdit.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="guiMain.py" />
-    <Compile Include="guiMatrixInput.py" />
-    <Compile Include="guiMatrixParam.py" />
+    <Compile Include="guiMain.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="guiMatrixInput.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="guiMatrixParam.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="guiTaskNew.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="root.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="guiMachine.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

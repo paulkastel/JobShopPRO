@@ -5,6 +5,8 @@ import guiMachine
 import guiItinerary
 import guiMatrixParam
 import guiMatrixInput
+from algorithms import *
+from chartGanttCreator import createGanttChart
 from clMachine import Machine
 from clItinerary import Itinerary
 from clTask import Task
@@ -13,6 +15,7 @@ from tkinter import messagebox as msg
 from time import gmtime, strftime
 import json
 import sys
+import copy
 #=========================================================================================
 class GuiMain(form.Frame):
     """Main form to manage all the program and options"""
@@ -23,7 +26,7 @@ class GuiMain(form.Frame):
         master.title(STRGS['TITLE_PROGRAM'])
         #center window in the middle of the screen
         master.geometry("%dx%d+%d+%d" % (600,400, int(master.winfo_screenwidth() / 2 - 600 / 2), int(master.winfo_screenheight() / 2 - 400 / 2)))
-        master.resizable(False, False)
+        master.minsize(width=600, height=400)
 
         menuBar = form.Menu(master)
         master.config(menu=menuBar)
@@ -41,6 +44,8 @@ class GuiMain(form.Frame):
 
         dataOption.add_command(label=STRGS['M_FILE_IMPORT'], command=self.dataFileImport)
         dataOption.add_command(label=STRGS['M_FILE_EXPORT'], command=self.dataFileExport)
+        dataOption.add_separator()
+        dataOption.add_command(label="Populate random data files", command=self.exportRandomDataFiles)
         
         #TODO: to dataOption create new window with logs?
 
@@ -52,16 +57,16 @@ class GuiMain(form.Frame):
 
         tabController = ttk.Notebook(master, width=40)
         frTabMain = ttk.Frame(tabController)
-        frTabLPT = ttk.Frame(tabController)
-        frTabSPT = ttk.Frame(tabController)
-        frTabLifo = ttk.Frame(tabController)
-        frTabFifo = ttk.Frame(tabController)
+        self.frTabLPT = ttk.Frame(tabController)
+        self.frTabSPT = ttk.Frame(tabController)
+        self.frTabLifo = ttk.Frame(tabController)
+        self.frTabFifo = ttk.Frame(tabController)
 
         tabController.add(frTabMain, text=STRGS['SETUP'])
-        tabController.add(frTabLPT, text="LPT")
-        tabController.add(frTabSPT, text="SPT")
-        tabController.add(frTabLifo, text="LIFO")
-        tabController.add(frTabFifo, text="FIFO")
+        tabController.add(self.frTabLPT, text="LPT")
+        tabController.add(self.frTabSPT, text="SPT")
+        tabController.add(self.frTabLifo, text="LIFO")
+        tabController.add(self.frTabFifo, text="FIFO")
         tabController.pack(expand=1, fill="both")
 
         ttk.Button(frTabMain, text=STRGS['MACHS'], width=20, command=self.popMachinesDlg).grid(column=0, row=0, padx=5, pady=5)
@@ -75,13 +80,10 @@ class GuiMain(form.Frame):
 
         self.lblItinerariesCount = ttk.Label(frTabMain)
         self.lblItinerariesCount.grid(column =1, row=1, padx=5, pady=5)
-
+        
         self.updateMainLabelsConfiguration()
 
-        #gui footer that shows additional information
-        #TODO: use it to show logs in app?
-        self.statusBar = form.Label(master, text="status bar info", bd=1, relief=form.SUNKEN, anchor=form.W)
-        self.statusBar.pack(side=form.BOTTOM, fill=form.X)
+        #TODO: create and store logs of what is happening
 
     def popAboutDlg(self):
         """Shows info about program and author"""
@@ -134,8 +136,18 @@ class GuiMain(form.Frame):
             exit()
 
     def createGraphs(self):
-        print("#TODO: graph")
-        pass
+        """Start calculations for existing data and creates graphs"""
+        global itinerariesList, machinesList
+        if len(itinerariesList) and len(machinesList):
+            #TODO: finish dat masterpiece
+            #TODO: progress bar of calculations
+
+            jobList = prepareJobs()
+            fifoResult = algorithmFIFO(copy.deepcopy(jobList))
+            createGanttChart(self.frTabFifo, fifoResult)
+            msg.showinfo(STRGS['OK'], "Calculations finished!")
+        else:
+            msg.showerror(STRGS['ERR_ILLEGAL'], STRGS['MSG_ERR_EMPTY_VAL'])
 
     def dataFileImport(self):
         """Tries to import JSON JobShop PRO file to program"""
@@ -148,7 +160,7 @@ class GuiMain(form.Frame):
                 return
 
         savePath = askopenfilename(defaultextension=".json", filetypes =(("JSON files",".json"),("All files","*.*")))
-
+        
         if not isStringNotBlank(savePath):
             return              #cancelled?  stop this madness now
        
@@ -183,7 +195,7 @@ class GuiMain(form.Frame):
                         else:
                             raise ValueError("Machine is not correct")
                     
-                    for index, dictItinerary in enumerate(imItineraries):                           #for each itinerary check structure
+                    for _, dictItinerary in enumerate(imItineraries):                           #for each itinerary check structure
                         if list(dictItinerary.keys()) == ["itineraryName", "tasksList"]:
                             tmpItinerary = Itinerary()
 
@@ -222,13 +234,17 @@ class GuiMain(form.Frame):
                 raise ValueError("Itineraries or machines structure is invalid!\nProbably not an JobShop JSON file!")
 
             #at this stage values should be OK, but check if machines are
-            #not twisted
+            #not twisted and if that all itineraries have unique names
             for testItinObj in itinerariesList:
                 for testTaskObj in testItinObj.tasksList:
                     if not testTaskObj.machine.name in [mach.name for mach in machinesList]:
-                        raise ValueError(testTaskObj.name + " in " + testItinObj.name + " have invalid machine.\nData is incopatible")            
+                        raise ValueError(testTaskObj.name + " in " + testItinObj.name + " have invalid machine.\nData is incompatibile!")            
             
-            msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_IMPORTED'])        #notify user that succeded
+            if len([testItinObj.name for testItinObj in itinerariesList]) != len(set([testItinObj.name for testItinObj in itinerariesList])):
+                raise ValueError("Not all itineraries have unique names!\nData is incompatibile!")
+
+            #msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_IMPORTED']) #notify
+            #user that succeded
  
         except ValueError as err:
             msg.showerror(STRGS['ERR'], err)
@@ -279,4 +295,7 @@ class GuiMain(form.Frame):
         self.lblItinerariesCount.config(text=STRGS['CREATED'] + str(len(itinerariesList)) + " " + STRGS['ITINERARIES'])
         self.lblMachinesCount.config(text=STRGS['CREATED'] + str(len(machinesList)) + " " + STRGS['MACHS'])
     
+    def exportRandomDataFiles(self):
+        print("TODO: export 5 files")
+
     #TODO: favicon

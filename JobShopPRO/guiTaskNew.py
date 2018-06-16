@@ -70,6 +70,6 @@ class GuiTaskNew(form.Toplevel):
             else:
                 messagebox.showerror(STRGS['MSG_ERR_WRONG_VAL'], STRGS['MSG_ERR_EMPTY_VAL'])
         else:
-            messagebox.showerror(STRGS['MSG_ERR_ITINERARY_NO_NAME'], STRGS['MSG_ERR_ITINERARY_ENTER_NAME'])
+            messagebox.showerror(STRGS['MSG_ERR_TASK_NO_NAME'], STRGS['MSG_ERR_TASK_ENTER_NAME'])
         pass
 

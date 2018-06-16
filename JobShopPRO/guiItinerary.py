@@ -47,14 +47,13 @@ class GuiItinerary(form.Frame):
 
     def addNewItinerary(self):
         """Runs dialog to add new itinerary"""
-        global machinesList
+        global machinesList, itinerariesList
         if not machinesList:
             messagebox.showerror(STRGS['MSG_ERR_NO_MACH_CREATE'], STRGS['MSG_ERR_NO_MACH_NO_ITINERS'])
         else:
             newItinerary = Itinerary()
-            GuiItineraryNew(self, newItinerary)
+            GuiItineraryNew(self, newItinerary, len(itinerariesList))
             if newItinerary.itineraryChanged == True:
-                global itinerariesList
                 itinerariesList.append(newItinerary)
                 self.lboxItinerariesList.insert(form.END, newItinerary.name)
 
@@ -63,7 +62,7 @@ class GuiItinerary(form.Frame):
         try:
             global itinerariesList
             index = self.lboxItinerariesList.curselection()[0] #selected itinerary in listbx
-            GuiItineraryNew(self, itinerariesList[index])
+            GuiItineraryNew(self, itinerariesList[index], index)
 
             #reload gui list of itineraries
             self.lboxItinerariesList.delete(0, form.END)

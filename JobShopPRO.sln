@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27428.2037
+VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "JobShopPRO", "JobShopPRO\JobShopPRO.pyproj", "{7EE04BF4-C6AC-4B14-8CBD-93FDDF8B8A7F}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "JobShopPro", "JobShopPro\JobShopPro.pyproj", "{EC3C38DD-64EC-4278-B819-4D8A56F63D60}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,13 +11,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7EE04BF4-C6AC-4B14-8CBD-93FDDF8B8A7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7EE04BF4-C6AC-4B14-8CBD-93FDDF8B8A7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC3C38DD-64EC-4278-B819-4D8A56F63D60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC3C38DD-64EC-4278-B819-4D8A56F63D60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {D9FFB3AE-AD77-49CC-A8E9-93E717344623}
+		SolutionGuid = {4EED468A-7648-4A2F-B04A-90B2F836D2B7}
 	EndGlobalSection
 EndGlobal

@@ -112,5 +112,3 @@ class GuiMachine(form.Frame):
     def saveAndClose(self):
         """Close this window"""
         self.master.destroy()
-
-        #TODO: export to xml file

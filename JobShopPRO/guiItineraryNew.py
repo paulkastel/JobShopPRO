@@ -1,17 +1,18 @@
 import tkinter as form
 from tkinter import ttk
-from tkinter import messagebox
+from tkinter import messagebox as msg
 from clTask import Task
 from clMachine import Machine
 import guiTaskNew
-from globalData import machinesList, STRGS
+from globalData import machinesList, itinerariesList, STRGS
 #=========================================================================================
 class GuiItineraryNew(form.Toplevel):
     """Form for creating new Itinerary"""
 
-    def __init__(self, master, aNewItinerary):
+    def __init__(self, master, aNewItinerary, aIndex):
         form.Toplevel.__init__(self, master)
         
+        self.editedItemIndex = aIndex
         self.title(STRGS['TITLE_NEW_ITINERARIES'])
         self.geometry("%dx%d+%d+%d" % (400,350, int(self.winfo_screenwidth() / 2 - 400 / 2), int(self.winfo_screenheight() / 2 - 350 / 2)))
         self.resizable(False, False)
@@ -123,10 +124,14 @@ class GuiItineraryNew(form.Toplevel):
     def saveItinerary(self, aNewItinerary):
         """Save itinerary object. to save itinerary it is compulsory to enter name"""
         if not self.itineraryName.get():
-            #aNewItinerary.itineraryChanged = False
-            messagebox.showerror(STRGS['MSG_ERR_ITINERARY_NO_NAME'], STRGS['MSG_ERR_ITINERARY_ENTER_NAME'])
+            msg.showerror(STRGS['MSG_ERR_ITINERARY_NO_NAME'], STRGS['MSG_ERR_ITINERARY_ENTER_NAME'])
             self.tkraise()
         else:
+            global itinerariesList
+            for index, itinObj in enumerate(itinerariesList):
+                if itinObj.name == self.itineraryName.get() and self.editedItemIndex != index:
+                    msg.showerror(STRGS['ERR_ILLEGAL'], itinObj.name + STRGS['ERR_EXIST_DIFF_NAME'])
+                    return
             aNewItinerary.name = self.itineraryName.get()
             aNewItinerary.itineraryChanged = True
             self.destroy()

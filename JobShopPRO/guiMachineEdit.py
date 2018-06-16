@@ -7,10 +7,10 @@ from clMachine import Machine
 class GuiMachineEdit(form.Toplevel):
     """Form that edit value of selected machine"""
 
-    def __init__(self, master, Aindex):
+    def __init__(self, master, aIndex):
         form.Toplevel.__init__(self, master)
 
-        self.editedItemIndex = Aindex
+        self.editedItemIndex = aIndex
         self.title(STRGS['EDIT'] + " " + str(machinesList[self.editedItemIndex].name))
         #center window in the middle of the screen
         self.geometry("%dx%d+%d+%d" % (250,100, int(self.winfo_screenwidth() / 2 - 250 / 2), int(self.winfo_screenheight() / 2 - 100 / 2)))
