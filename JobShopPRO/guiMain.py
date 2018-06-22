@@ -81,7 +81,11 @@ class GuiMain(form.Frame):
         ttk.Button(frTabMain, text=STRGS['ITINERARIES'], width=20, command=self.popItinerariesDlg).grid(column=0, row=1, padx=5, pady=5)
         ttk.Button(frTabMain, text=STRGS['ENTER_MATRIX_DATA'], width=20, command=self.popMatrixDlg).grid(column=0, row=2, padx=5, pady=5)
         form.Button(frTabMain, text=STRGS['CALC'], width=17, height=8, command=self.createGraphs).grid(column=0, row=3, padx=5, pady=5)
-
+        
+        self.calculationProgressBar =ttk.Progressbar(frTabMain, orient="horizontal", length = 127, mode="determinate")
+        self.calculationProgressBar.grid(column=0, row=4, padx=5, pady=5)
+        self.calculationProgressBar["maximum"] = 100
+        
         global machinesList, itinerariesList
         self.lblMachinesCount = ttk.Label(frTabMain)
         self.lblMachinesCount.grid(column =1, row=0, padx=5, pady=5)
@@ -150,23 +154,37 @@ class GuiMain(form.Frame):
             #TODO: progress bar of calculations
 
             jobList = prepareJobs()
-
+            self.calculationProgressBar["value"] = 0
+            self.calculationProgressBar.update()
             randomResult = randomSolution(copy.deepcopy(jobList))
             createGanttChart(self.frTabRandomSol, randomResult)
 
+            self.calculationProgressBar["value"] = 100* 1/6
+            self.calculationProgressBar.update()
             fifoResult = algorithmFIFO(copy.deepcopy(jobList))
-            createGanttChart(self.frTabFifo, fifoResult)            
+            createGanttChart(self.frTabFifo, fifoResult)
             
+            self.calculationProgressBar["value"] = 100* 2/6
+            self.calculationProgressBar.update()  
             lifoResult = algorithmLIFO(copy.deepcopy(jobList))
             createGanttChart(self.frTabLifo, lifoResult)
 
+            self.calculationProgressBar["value"] = 100* 3/6
+            self.calculationProgressBar.update()  
             resultLPT = algorithmLPT(copy.deepcopy(jobList))
             createGanttChart(self.frTabLPT, resultLPT)
-                        
+            
+            self.calculationProgressBar["value"] = 100* 4/6
+            self.calculationProgressBar.update() 
             resultSPT = algorithmSPT(copy.deepcopy(jobList))
             createGanttChart(self.frTabSPT, resultSPT)
 
+            self.calculationProgressBar["value"] = 100* 5/6
+            self.calculationProgressBar.update() 
             optResult = optimalSolution(copy.deepcopy(jobList))
+
+            self.calculationProgressBar["value"] = 100* 6/6
+            self.calculationProgressBar.update() 
             createGanttChart(self.frTabOptSol, optResult)
 
             msg.showinfo(STRGS['OK'], "Calculations finished!")
