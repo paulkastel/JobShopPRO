@@ -5,8 +5,6 @@ from matplotlib.figure import Figure
 import matplotlib.ticker as ticker
 import tkinter as form
 from math import fmod
-from tkinter import messagebox as msg
-import random
 from globalData import machinesList, itinerariesList
 #=========================================================================================
 def createGanttChart(aFrame, aJobsList):
@@ -48,7 +46,7 @@ def createGanttChart(aFrame, aJobsList):
     uniqueItinerariesInJobList = [job for job in aJobsList if job.itinerary not in seen and not seen.add(job.itinerary)]
     for job in uniqueItinerariesInJobList:
         legendsColors.append(mpatches.Patch(color=job.colorOfItinerary, label=job.itinerary))      #legend color and name
-    plt.legend(handles=legendsColors)
+    plt.legend(handles=legendsColors, fontsize =9)
     
     seen = set()
     uniqueItinerariesInJobList = [job for job in aJobsList if job.machine not in seen and not seen.add(job.itinerary)]
@@ -60,8 +58,7 @@ def createGanttChart(aFrame, aJobsList):
             if job.machine == machLabel:
                 tuplesForMachineAxis.append(job.getTupleStartAndDuration())
                 colorsForMachineAxis.append(job.colorOfItinerary)
-        ax.broken_barh(tuplesForMachineAxis, ((index + 1) * 10, 9), facecolors=colorsForMachineAxis)
-        print(tuplesForMachineAxis)        
+        ax.broken_barh(tuplesForMachineAxis, ((index + 1) * 10, 9), facecolors=colorsForMachineAxis)       
         tuplesForMachineAxis.clear()
         colorsForMachineAxis.clear()
 

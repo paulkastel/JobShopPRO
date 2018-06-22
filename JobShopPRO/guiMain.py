@@ -16,6 +16,8 @@ from time import gmtime, strftime
 import json
 import sys
 import copy
+from random import randint
+import os
 #=========================================================================================
 class GuiMain(form.Frame):
     """Main form to manage all the program and options"""
@@ -25,8 +27,8 @@ class GuiMain(form.Frame):
 
         master.title(STRGS['TITLE_PROGRAM'])
         #center window in the middle of the screen
-        master.geometry("%dx%d+%d+%d" % (600,400, int(master.winfo_screenwidth() / 2 - 600 / 2), int(master.winfo_screenheight() / 2 - 400 / 2)))
-        master.minsize(width=600, height=400)
+        master.geometry("%dx%d+%d+%d" % (600,450, int(master.winfo_screenwidth() / 2 - 600 / 2), int(master.winfo_screenheight() / 2 - 450 / 2)))
+        master.minsize(width=600, height=450)
 
         menuBar = form.Menu(master)
         master.config(menu=menuBar)
@@ -57,16 +59,22 @@ class GuiMain(form.Frame):
 
         tabController = ttk.Notebook(master, width=40)
         frTabMain = ttk.Frame(tabController)
+        
+        self.frTabRandomSol = ttk.Frame(tabController)
+        self.frTabFifo = ttk.Frame(tabController)
+        self.frTabLifo = ttk.Frame(tabController)
         self.frTabLPT = ttk.Frame(tabController)
         self.frTabSPT = ttk.Frame(tabController)
-        self.frTabLifo = ttk.Frame(tabController)
-        self.frTabFifo = ttk.Frame(tabController)
-
+        self.frTabOptSol = ttk.Frame(tabController)
+        
         tabController.add(frTabMain, text=STRGS['SETUP'])
-        tabController.add(self.frTabLPT, text="LPT")
-        tabController.add(self.frTabSPT, text="SPT")
+        tabController.add(self.frTabRandomSol, text="RANDOM")        
+        tabController.add(self.frTabFifo, text="FIFO")        
         tabController.add(self.frTabLifo, text="LIFO")
-        tabController.add(self.frTabFifo, text="FIFO")
+        tabController.add(self.frTabSPT, text="SPT")       
+        tabController.add(self.frTabLPT, text="LPT")
+        tabController.add(self.frTabOptSol, text="OPTIMUM")
+
         tabController.pack(expand=1, fill="both")
 
         ttk.Button(frTabMain, text=STRGS['MACHS'], width=20, command=self.popMachinesDlg).grid(column=0, row=0, padx=5, pady=5)
@@ -80,7 +88,7 @@ class GuiMain(form.Frame):
 
         self.lblItinerariesCount = ttk.Label(frTabMain)
         self.lblItinerariesCount.grid(column =1, row=1, padx=5, pady=5)
-        
+
         self.updateMainLabelsConfiguration()
 
         #TODO: create and store logs of what is happening
@@ -139,13 +147,30 @@ class GuiMain(form.Frame):
         """Start calculations for existing data and creates graphs"""
         global itinerariesList, machinesList
         if len(itinerariesList) and len(machinesList):
-            #TODO: finish dat masterpiece
             #TODO: progress bar of calculations
 
             jobList = prepareJobs()
+
+            randomResult = randomSolution(copy.deepcopy(jobList))
+            createGanttChart(self.frTabRandomSol, randomResult)
+
             fifoResult = algorithmFIFO(copy.deepcopy(jobList))
-            createGanttChart(self.frTabFifo, fifoResult)
+            createGanttChart(self.frTabFifo, fifoResult)            
+            
+            lifoResult = algorithmLIFO(copy.deepcopy(jobList))
+            createGanttChart(self.frTabLifo, lifoResult)
+
+            resultLPT = algorithmLPT(copy.deepcopy(jobList))
+            createGanttChart(self.frTabLPT, resultLPT)
+                        
+            resultSPT = algorithmSPT(copy.deepcopy(jobList))
+            createGanttChart(self.frTabSPT, resultSPT)
+
+            optResult = optimalSolution(copy.deepcopy(jobList))
+            createGanttChart(self.frTabOptSol, optResult)
+
             msg.showinfo(STRGS['OK'], "Calculations finished!")
+
         else:
             msg.showerror(STRGS['ERR_ILLEGAL'], STRGS['MSG_ERR_EMPTY_VAL'])
 
@@ -160,7 +185,7 @@ class GuiMain(form.Frame):
                 return
 
         savePath = askopenfilename(defaultextension=".json", filetypes =(("JSON files",".json"),("All files","*.*")))
-        
+
         if not isStringNotBlank(savePath):
             return              #cancelled?  stop this madness now
        
@@ -296,6 +321,57 @@ class GuiMain(form.Frame):
         self.lblMachinesCount.config(text=STRGS['CREATED'] + str(len(machinesList)) + " " + STRGS['MACHS'])
     
     def exportRandomDataFiles(self):
-        print("TODO: export 5 files")
+        machinesAmount = 0
+        itinerariesAmount = 0
+        arrAmount = [machinesAmount, itinerariesAmount]
+        machinesRandomList =[]
+        itinerariesRandomList = []
+        #python only allow pass-by-object, so this is only way to get numbers
+        #from next gui
+        guiMatrixParam.GuiMatrixParam(self, arrAmount).wait_window()
+        self.focus_force()
+        if all(x != 0 for x in arrAmount):
+            machinesAmount, itinerariesAmount = arrAmount
+            for filesID in range(5):
+                for mach in range(machinesAmount):
+                    machinesRandomList.append(Machine("M"+str(mach+1)))
+
+                for itin in range(itinerariesAmount):
+                    itinObj = Itinerary()
+                    itinObj.name = "Itinerary "+str(itin+1)
+                    for rndTask in range(randint(1, machinesAmount)):
+                        t = Task("Task "+str(rndTask+1),randint(1, 100), machinesRandomList[randint(0, machinesAmount-1)])
+                        itinObj.tasksList.append(t)
+                    itinerariesRandomList.append(itinObj)
+
+                exItinerariesToJSON = []       #export machines in kinda serializable form
+                for itin in itinerariesRandomList:
+                    exItinerariesToJSON.append(itin.exportToDict()) 
+
+                exMachinesToJSON = [] 
+                for mach in machinesList:
+                    machinesRandomList.append(mach.exportToDict())
+        
+                #to have nice structure of json file we store dictionary data in one
+                #file
+                exportData = {}
+                exportData['itineraries'] = exItinerariesToJSON
+                exportData['machines'] = exMachinesToJSON
+
+                try:
+                    fileName = STRGS['TITLE_PROGRAM'] + " - randomExport "+str(filesID+1)+ ".json"
+                    savePath = "TestCases M"+str(machinesAmount)+" X J"+str(itinerariesAmount)+ strftime(" %Y%m%d%H%M", gmtime()) +"/"+fileName
+            
+                    if savePath != "":
+                        if not os.path.exists(os.path.dirname(savePath)):
+                            os.makedirs(os.path.dirname(savePath))
+                        with open(savePath, 'w', encoding='utf-8') as outfile:
+                            json.dump(exportData, outfile, indent=4)    #put serialzed json data in outfile saved in savePath directory
+                        #msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_EXPORTED'])
+                except Exception as err:
+                    msg.showerror(STRGS['ERR'], err)
+
+                machinesRandomList.clear()
+                itinerariesRandomList.clear()
 
     #TODO: favicon
