@@ -13,6 +13,7 @@ class Job():
         self.idOperation = aTaskNumber
         self.idItinerary = aItineraryNumber
         self.completed = False
+        self.priority = 0
 
     def __eq__(self, other):
         return self.itinerary == other.itinerary and self.colorOfItinerary == other.colorOfItinerary and self.machine == other.machine and self.duration == other.duration and self.completed == other.completed and self.idOperation == other.idOperation

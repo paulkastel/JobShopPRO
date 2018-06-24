@@ -4,6 +4,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 import matplotlib.ticker as ticker
 import tkinter as form
+import numpy as np
+import scipy.stats as stats
 from math import fmod
 from globalData import machinesList, itinerariesList
 #=========================================================================================
@@ -22,8 +24,8 @@ def createGanttChart(aFrame, aJobsList):
     for i, itin in enumerate(itinerariesList):
         arr = [job for job in aJobsList if job.itinerary == itin.name]
         arr.sort(key=lambda x: x.endTime)
-        chartTitle = chartTitle + ", C" + str(i + 1) + "=" + str(arr[-1].endTime)
-        if not fmod(i, 5) and i != 0:
+        chartTitle = chartTitle + " C" + str(i + 1) + "=" + str(arr[-1].endTime)+","
+        if not fmod(i, 10) and i != 0:
             chartTitle = chartTitle + "\n"
     
     plt.title(chartTitle)
@@ -67,6 +69,61 @@ def createGanttChart(aFrame, aJobsList):
         label.set_visible(False)
 
     ax.grid(True)
+    canva = FigureCanvasTkAgg(chartFig, aFrame)     #adding chart to frame
+    canva.show()
+    canva.get_tk_widget().pack(side=form.TOP, fill =form.BOTH, expand=True)
+
+
+def createHistogram(aFrame, aYXList):
+    """Draws histogram with Gaussian function in aFrame"""
+
+    for widget in aFrame.winfo_children():
+        widget.destroy()    #clear previous charts
+
+    x=[]
+    y=[]
+
+    defaultVal = aYXList[0][1]
+    aYXList.remove(aYXList[0])
+
+    for data in aYXList:
+        x.append(data[0])
+        y.append(data[1])
+    
+    y.sort(reverse=True)
+    seen = set() 
+
+    # bins are used for histogram ticks 
+    bins = [seen.add(val) or val for val in y if val not in seen]
+    bins.sort(reverse=True)
+
+    chartFig, ax = plt.subplots()
+    plt.title("Influence of probability\n Default Cmax is "+str(defaultVal)+", Iterations: "+str(len(aYXList)))
+
+    #use this to draw histogram of your data, red columns
+    plt.hist(y,edgecolor='black', linewidth=1, align='left', bins=np.arange(min(bins)-5,max(bins)+5,5), color='r')  
+    
+    #x-axis labels
+    plt.xticks(np.arange(min(bins)-5,max(bins)+5,5)) 
+    ax.set_xlabel("Obtained Cmax time in iterations")
+
+    #y-axis labels for histogram
+    plt.ylabel('Amount of iterations', color='r')
+    plt.tick_params('y', colors='r')
+    ax.set_yticks(np.arange(start=0, stop=(y.count(max(set(y), key=y.count))+5), step=2))
+    
+    #second chart
+    ax2 =plt.twinx()
+
+    #gaussian function
+    ax = stats.norm.pdf(y, np.mean(y), np.std(y)) 
+    plt.plot(y,ax,'b')
+
+    plt.ylabel("Probability density", color='b')
+    plt.tick_params('y', colors='b')
+    
+    chartFig.tight_layout()
+
     canva = FigureCanvasTkAgg(chartFig, aFrame)     #adding chart to frame
     canva.show()
     canva.get_tk_widget().pack(side=form.TOP, fill =form.BOTH, expand=True)

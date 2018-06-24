@@ -2,6 +2,7 @@ from globalData import *
 from clJob import Job
 from copy import deepcopy
 import random
+#from numpy.random import choice
 from sortedcollections import SortedDict
 # Import Python wrapper for or-tools constraint solver.
 from ortools.constraint_solver import pywrapcp
@@ -415,6 +416,64 @@ def randomSolution(aJobsList):
                     jobsListToExport.append(tasks[r])
                     
                     currentTimeOnMachines[keyMach] = tasks[r].getEndTime()
+                    time[currentTimeOnMachines[keyMach]] = {}  
+
+            del time[t]
+            break
+        time = SortedDict(time) #chronological order
+    return jobsListToExport
+
+def randomSolutionByPriority(aJobsList):
+    """
+    Choose jobs in random order for job shop problem (worst case scenario)
+    """
+
+    time = {}
+    waitingOperations = {}
+    currentTimeOnMachines = {}
+    jobsListToExport = []
+
+    #initialize machines times and get first 
+    #waiting operations for each machine
+    global machinesList
+    for machine in machinesList:
+        waitingOperations[machine.name] = [job for job in aJobsList if job.machine == machine.name and job.idOperation == 1]
+        currentTimeOnMachines[machine.name] = 0
+
+    time[0] = waitingOperations
+
+    for keyMach, operations in waitingOperations.items():
+        #for each waiting task in front of machine set time to 0, 
+        #update properties
+        if len(operations):
+            #r = choice(len(operations),1,p=[j.priority for j in operations])
+            r = random.choices(range(0, len(operations)), weights=[j.priority for j in operations])
+            operations[r[0]].startTime = 0
+            operations[r[0]].completed = True
+
+            #push task to production, and create new event to stop at, 
+            #on ending time, then update machines time
+            jobsListToExport.append(operations[r[0]])
+            currentTimeOnMachines[keyMach] = operations[r[0]].getEndTime()
+            time[currentTimeOnMachines[keyMach]] = {}
+
+    while len(jobsListToExport) != len(aJobsList):
+        for t, operations in time.items():
+            #doesnt really matter the order if you choose random operation from it
+            operations = getWaitingOperationsLPT(aJobsList, float(t))
+
+            for keyMach, tasks in operations.items():
+                if len(tasks):
+                    #if more than 1 operation in queue, choose the random one
+                    r = random.choices(range(0, len(tasks)), weights=[j.priority for j in tasks])
+                    if float(t) < currentTimeOnMachines[tasks[r[0]].machine]:
+                        continue               
+                    tasks[r[0]].startTime = float(t)
+                    tasks[r[0]].completed = True
+
+                    jobsListToExport.append(tasks[r[0]])
+                    
+                    currentTimeOnMachines[keyMach] = tasks[r[0]].getEndTime()
                     time[currentTimeOnMachines[keyMach]] = {}  
 
             del time[t]

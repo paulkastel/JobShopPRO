@@ -6,18 +6,19 @@ import guiItinerary
 import guiMatrixParam
 import guiMatrixInput
 from algorithms import *
-from chartGanttCreator import createGanttChart
+from chartGanttCreator import createGanttChart, createHistogram
 from clMachine import Machine
 from clItinerary import Itinerary
 from clTask import Task
 from globalData import *
 from tkinter import messagebox as msg
 from time import gmtime, strftime
-import json
+import json, csv
 import sys
 import copy
 from random import randint
 import os
+import time
 #=========================================================================================
 class GuiMain(form.Frame):
     """Main form to manage all the program and options"""
@@ -47,7 +48,7 @@ class GuiMain(form.Frame):
         dataOption.add_command(label=STRGS['M_FILE_IMPORT'], command=self.dataFileImport)
         dataOption.add_command(label=STRGS['M_FILE_EXPORT'], command=self.dataFileExport)
         dataOption.add_separator()
-        dataOption.add_command(label="Populate random data files", command=self.exportRandomDataFiles)
+        dataOption.add_command(label="Create random case", command=self.exportRandomDataFiles)
         
         #TODO: to dataOption create new window with logs?
 
@@ -66,6 +67,7 @@ class GuiMain(form.Frame):
         self.frTabLPT = ttk.Frame(tabController)
         self.frTabSPT = ttk.Frame(tabController)
         self.frTabOptSol = ttk.Frame(tabController)
+        self.frTabSPTRnd = ttk.Frame(tabController)
         
         tabController.add(frTabMain, text=STRGS['SETUP'])
         tabController.add(self.frTabRandomSol, text="RANDOM")        
@@ -74,6 +76,7 @@ class GuiMain(form.Frame):
         tabController.add(self.frTabSPT, text="SPT")       
         tabController.add(self.frTabLPT, text="LPT")
         tabController.add(self.frTabOptSol, text="OPTIMUM")
+        tabController.add(self.frTabSPTRnd, text="SPT Histogram")
 
         tabController.pack(expand=1, fill="both")
 
@@ -81,10 +84,16 @@ class GuiMain(form.Frame):
         ttk.Button(frTabMain, text=STRGS['ITINERARIES'], width=20, command=self.popItinerariesDlg).grid(column=0, row=1, padx=5, pady=5)
         ttk.Button(frTabMain, text=STRGS['ENTER_MATRIX_DATA'], width=20, command=self.popMatrixDlg).grid(column=0, row=2, padx=5, pady=5)
         form.Button(frTabMain, text=STRGS['CALC'], width=17, height=8, command=self.createGraphs).grid(column=0, row=3, padx=5, pady=5)
-        
+
         self.calculationProgressBar =ttk.Progressbar(frTabMain, orient="horizontal", length = 127, mode="determinate")
         self.calculationProgressBar.grid(column=0, row=4, padx=5, pady=5)
-        self.calculationProgressBar["maximum"] = 100
+        self.calculationProgressBar["maximum"] = 100        
+        
+        form.Button(frTabMain, text="Calculate Histograms", width=17, height=2, command=self.countInfluenceofRandomPriority).grid(column=0, row=5, padx=5, pady=5)
+
+        self.rndProgressBar =ttk.Progressbar(frTabMain, orient="horizontal", length = 127, mode="determinate")
+        self.rndProgressBar.grid(column=0, row=6, padx=5, pady=5)
+        self.rndProgressBar["maximum"] = 100
         
         global machinesList, itinerariesList
         self.lblMachinesCount = ttk.Label(frTabMain)
@@ -93,8 +102,11 @@ class GuiMain(form.Frame):
         self.lblItinerariesCount = ttk.Label(frTabMain)
         self.lblItinerariesCount.grid(column =1, row=1, padx=5, pady=5)
 
+        self.lblCalculationsTime  = ttk.Label(frTabMain)
+        self.lblCalculationsTime.grid(column=1, row=3, padx=5, pady=5)
+        
         self.updateMainLabelsConfiguration()
-
+        
         #TODO: create and store logs of what is happening
 
     def popAboutDlg(self):
@@ -151,46 +163,109 @@ class GuiMain(form.Frame):
         """Start calculations for existing data and creates graphs"""
         global itinerariesList, machinesList
         if len(itinerariesList) and len(machinesList):
-            #TODO: progress bar of calculations
+            #TODO: time of counting each algorithm
 
+            strTime = "Calculations time:\n"
             jobList = prepareJobs()
             self.calculationProgressBar["value"] = 0
             self.calculationProgressBar.update()
+            startTime = time.clock()
             randomResult = randomSolution(copy.deepcopy(jobList))
-            createGanttChart(self.frTabRandomSol, randomResult)
+            strTime = strTime+"RANDM: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
+            #createGanttChart(self.frTabRandomSol, randomResult)
 
             self.calculationProgressBar["value"] = 100* 1/6
             self.calculationProgressBar.update()
+            startTime = time.clock()
             fifoResult = algorithmFIFO(copy.deepcopy(jobList))
-            createGanttChart(self.frTabFifo, fifoResult)
+            strTime = strTime+"FIFO: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
+            #createGanttChart(self.frTabFifo, fifoResult)
             
             self.calculationProgressBar["value"] = 100* 2/6
             self.calculationProgressBar.update()  
+            startTime = time.clock()
             lifoResult = algorithmLIFO(copy.deepcopy(jobList))
-            createGanttChart(self.frTabLifo, lifoResult)
+            strTime = strTime+"LIFO: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
+            #createGanttChart(self.frTabLifo, lifoResult)
 
             self.calculationProgressBar["value"] = 100* 3/6
             self.calculationProgressBar.update()  
+            startTime = time.clock()
             resultLPT = algorithmLPT(copy.deepcopy(jobList))
-            createGanttChart(self.frTabLPT, resultLPT)
+            strTime = strTime+"LPT: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
+            #createGanttChart(self.frTabLPT, resultLPT)
             
             self.calculationProgressBar["value"] = 100* 4/6
-            self.calculationProgressBar.update() 
-            resultSPT = algorithmSPT(copy.deepcopy(jobList))
-            createGanttChart(self.frTabSPT, resultSPT)
+            self.calculationProgressBar.update()
+            startTime = time.clock()
+            self.resultSPT = algorithmSPT(copy.deepcopy(jobList))
+            strTime = strTime+"SPT: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
+            createGanttChart(self.frTabSPT, self.resultSPT)
 
             self.calculationProgressBar["value"] = 100* 5/6
             self.calculationProgressBar.update() 
-            optResult = optimalSolution(copy.deepcopy(jobList))
+            startTime = time.clock()
+            #optResult = optimalSolution(copy.deepcopy(jobList))
+            strTime = strTime+"OPTIM: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
+            #createGanttChart(self.frTabOptSol, optResult)
+            
+            self.lblCalculationsTime.configure(text=strTime)
 
             self.calculationProgressBar["value"] = 100* 6/6
             self.calculationProgressBar.update() 
-            createGanttChart(self.frTabOptSol, optResult)
 
             msg.showinfo(STRGS['OK'], "Calculations finished!")
 
         else:
             msg.showerror(STRGS['ERR_ILLEGAL'], STRGS['MSG_ERR_EMPTY_VAL'])
+
+    def countInfluenceofRandomPriority(self):
+        """Scientific function that add priority for itineraries, and checks random influence """
+        
+        if len(machinesList) == 0 or len(itinerariesList) ==0:
+            msg.showerror(STRGS['ERR_ILLEGAL'], STRGS['MSG_ERR_EMPTY_VAL'])
+            return
+
+        arrOfJobsLength = []
+        for itinObj in itinerariesList:
+            wholeItinerary = [job for job in self.resultSPT if job.itinerary == itinObj.name]
+            wholeItinerary.sort(key=lambda x: x.endTime)
+            arrOfJobsLength.append(wholeItinerary[-1].endTime)
+
+        denominator = sum(arrOfJobsLength)
+        maxC = max(arrOfJobsLength)
+
+        for itinObj in itinerariesList:
+            wholeItinerary = [job for job in self.resultSPT if job.itinerary == itinObj.name]
+            wholeItinerary.sort(key=lambda x: x.endTime)
+            for j in wholeItinerary:
+                j.completed = False
+                p = wholeItinerary[-1].endTime/denominator #cmax/sum(cmax of all itinieraries)
+                j.priority = round(p, 3)
+                
+        exportDataCSV = []
+        data = [0, maxC]
+        exportDataCSV.append(data)
+
+        iterations = 100
+        for i in range(1, iterations+1):         
+            tmpResult = randomSolutionByPriority(copy.deepcopy(self.resultSPT))
+            x = [job.endTime for job in tmpResult]
+            cMax = max(x)
+            data = [i, cMax]
+            exportDataCSV.append(data)
+            self.rndProgressBar["value"] = 100 * i/iterations
+            self.rndProgressBar.update()
+
+        try:
+            with open('M'+str(len(machinesList))+' X J'+str(len(itinerariesList))+' ExportedData Iterations'+str(iterations)+'.csv', 'w') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows(exportDataCSV)
+        except Exception as err:
+            msg.showerror(STRGS['ERR'], err)
+
+        createHistogram(self.frTabSPTRnd, exportDataCSV)
+        msg.showinfo(STRGS['OK'], "Calculations finished!")
 
     def dataFileImport(self):
         """Tries to import JSON JobShop PRO file to program"""
@@ -203,6 +278,7 @@ class GuiMain(form.Frame):
                 return
 
         savePath = askopenfilename(defaultextension=".json", filetypes =(("JSON files",".json"),("All files","*.*")))
+        #savePath = "przypadek1.json"
 
         if not isStringNotBlank(savePath):
             return              #cancelled?  stop this madness now
@@ -350,46 +426,45 @@ class GuiMain(form.Frame):
         self.focus_force()
         if all(x != 0 for x in arrAmount):
             machinesAmount, itinerariesAmount = arrAmount
-            for filesID in range(5):
-                for mach in range(machinesAmount):
-                    machinesRandomList.append(Machine("M"+str(mach+1)))
+            for mach in range(machinesAmount):
+                machinesRandomList.append(Machine("M"+str(mach+1)))
 
-                for itin in range(itinerariesAmount):
-                    itinObj = Itinerary()
-                    itinObj.name = "Itinerary "+str(itin+1)
-                    for rndTask in range(randint(1, machinesAmount)):
-                        t = Task("Task "+str(rndTask+1),randint(1, 100), machinesRandomList[randint(0, machinesAmount-1)])
-                        itinObj.tasksList.append(t)
-                    itinerariesRandomList.append(itinObj)
+            for itin in range(itinerariesAmount):
+                itinObj = Itinerary()
+                itinObj.name = "Itinerary "+str(itin+1)
+                for rndTask in range(randint(1, machinesAmount)):
+                    t = Task("Task "+str(rndTask+1),randint(5, 25), machinesRandomList[randint(0, machinesAmount-1)])
+                    itinObj.tasksList.append(t)
+                itinerariesRandomList.append(itinObj)
 
-                exItinerariesToJSON = []       #export machines in kinda serializable form
-                for itin in itinerariesRandomList:
-                    exItinerariesToJSON.append(itin.exportToDict()) 
+            exItinerariesToJSON = []       #export machines in kinda serializable form
+            for itin in itinerariesRandomList:
+                exItinerariesToJSON.append(itin.exportToDict()) 
 
-                exMachinesToJSON = [] 
-                for mach in machinesList:
-                    machinesRandomList.append(mach.exportToDict())
+            exMachinesToJSON = [] 
+            for mach in machinesRandomList:
+                exMachinesToJSON.append(mach.exportToDict())
         
-                #to have nice structure of json file we store dictionary data in one
-                #file
-                exportData = {}
-                exportData['itineraries'] = exItinerariesToJSON
-                exportData['machines'] = exMachinesToJSON
+            #to have nice structure of json file we store dictionary data in one
+            #file
+            exportData = {}
+            exportData['itineraries'] = exItinerariesToJSON
+            exportData['machines'] = exMachinesToJSON
 
-                try:
-                    fileName = STRGS['TITLE_PROGRAM'] + " - randomExport "+str(filesID+1)+ ".json"
-                    savePath = "TestCases M"+str(machinesAmount)+" X J"+str(itinerariesAmount)+ strftime(" %Y%m%d%H%M", gmtime()) +"/"+fileName
+            try:
+                fileName = STRGS['TITLE_PROGRAM'] + " - randomExport "+ strftime(" %Y%m%d%H%M%S", gmtime())+".json"
+                savePath = "TestCase M"+str(machinesAmount)+" X J"+str(itinerariesAmount)+ strftime(" %Y%m%d%H%M", gmtime()) +"/"+fileName
             
-                    if savePath != "":
-                        if not os.path.exists(os.path.dirname(savePath)):
-                            os.makedirs(os.path.dirname(savePath))
-                        with open(savePath, 'w', encoding='utf-8') as outfile:
-                            json.dump(exportData, outfile, indent=4)    #put serialzed json data in outfile saved in savePath directory
-                        #msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_EXPORTED'])
-                except Exception as err:
-                    msg.showerror(STRGS['ERR'], err)
+                if savePath != "":
+                    if not os.path.exists(os.path.dirname(savePath)):
+                        os.makedirs(os.path.dirname(savePath))
+                    with open(savePath, 'w', encoding='utf-8') as outfile:
+                        json.dump(exportData, outfile, indent=4)    #put serialzed json data in outfile saved in savePath directory
+                    msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_EXPORTED'])
+            except Exception as err:
+                msg.showerror(STRGS['ERR'], err)
 
-                machinesRandomList.clear()
-                itinerariesRandomList.clear()
+            machinesRandomList.clear()
+            itinerariesRandomList.clear()
 
-    #TODO: favicon
+#    #TODO: favicon
