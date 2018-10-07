@@ -70,6 +70,14 @@
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Test Files\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Test Files\przypadek1.json" />
+    <Content Include="Test Files\przypadek2.json" />
+    <Content Include="Test Files\przypadek3.json" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
        Visual Studio and specify your pre- and post-build commands in

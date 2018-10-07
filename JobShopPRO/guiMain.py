@@ -6,7 +6,7 @@ import guiItinerary
 import guiMatrixParam
 import guiMatrixInput
 from algorithms import *
-from chartGanttCreator import createGanttChart, createHistogram
+from chartGanttCreator import createGanttChart, createHistogram, createScatter
 from clMachine import Machine
 from clItinerary import Itinerary
 from clTask import Task
@@ -28,7 +28,7 @@ class GuiMain(form.Frame):
 
         master.title(STRGS['TITLE_PROGRAM'])
         #center window in the middle of the screen
-        master.geometry("%dx%d+%d+%d" % (600,450, int(master.winfo_screenwidth() / 2 - 600 / 2), int(master.winfo_screenheight() / 2 - 450 / 2)))
+        master.geometry("%dx%d+%d+%d" % (600,500, int(master.winfo_screenwidth() / 2 - 600 / 2), int(master.winfo_screenheight() / 2 - 500 / 2)))
         master.minsize(width=600, height=450)
 
         menuBar = form.Menu(master)
@@ -67,7 +67,8 @@ class GuiMain(form.Frame):
         self.frTabLPT = ttk.Frame(tabController)
         self.frTabSPT = ttk.Frame(tabController)
         self.frTabOptSol = ttk.Frame(tabController)
-        self.frTabSPTRnd = ttk.Frame(tabController)
+        self.frTabHistogram = ttk.Frame(tabController)
+        self.frTabScatter = ttk.Frame(tabController)
         
         tabController.add(frTabMain, text=STRGS['SETUP'])
         tabController.add(self.frTabRandomSol, text="RANDOM")        
@@ -76,7 +77,8 @@ class GuiMain(form.Frame):
         tabController.add(self.frTabSPT, text="SPT")       
         tabController.add(self.frTabLPT, text="LPT")
         tabController.add(self.frTabOptSol, text="OPTIMUM")
-        tabController.add(self.frTabSPTRnd, text="SPT Histogram")
+        tabController.add(self.frTabScatter, text="Scatter")
+        tabController.add(self.frTabHistogram, text="Histogram")
 
         tabController.pack(expand=1, fill="both")
 
@@ -89,7 +91,7 @@ class GuiMain(form.Frame):
         self.calculationProgressBar.grid(column=0, row=4, padx=5, pady=5)
         self.calculationProgressBar["maximum"] = 100        
         
-        form.Button(frTabMain, text="Calculate Histograms", width=17, height=2, command=self.countInfluenceofRandomPriority).grid(column=0, row=5, padx=5, pady=5)
+        form.Button(frTabMain, text="Calculate Histograms", width=17, height=2, command=self.incrementPriority).grid(column=0, row=5, padx=5, pady=5)
 
         self.rndProgressBar =ttk.Progressbar(frTabMain, orient="horizontal", length = 127, mode="determinate")
         self.rndProgressBar.grid(column=0, row=6, padx=5, pady=5)
@@ -163,51 +165,50 @@ class GuiMain(form.Frame):
         """Start calculations for existing data and creates graphs"""
         global itinerariesList, machinesList
         if len(itinerariesList) and len(machinesList):
-            #TODO: time of counting each algorithm
 
             strTime = "Calculations time:\n"
             jobList = prepareJobs()
             self.calculationProgressBar["value"] = 0
             self.calculationProgressBar.update()
             startTime = time.clock()
-            randomResult = randomSolution(copy.deepcopy(jobList))
-            strTime = strTime+"RANDM: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
-            #createGanttChart(self.frTabRandomSol, randomResult)
+            self.randomResult = randomSolution(copy.deepcopy(jobList))
+            strTime = strTime+"RANDM: "+ str(round(time.clock() - startTime, 4))+" sec.\nCmax="+ str(max([j.endTime for j in self.randomResult]))+"\n"
+            createGanttChart(self.frTabRandomSol, self.randomResult)
 
             self.calculationProgressBar["value"] = 100* 1/6
             self.calculationProgressBar.update()
             startTime = time.clock()
             fifoResult = algorithmFIFO(copy.deepcopy(jobList))
-            strTime = strTime+"FIFO: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
-            #createGanttChart(self.frTabFifo, fifoResult)
+            strTime = strTime+"FIFO: "+ str(round(time.clock() - startTime, 4))+" sec.\nCmax="+ str(max([j.endTime for j in fifoResult]))+"\n"
+            createGanttChart(self.frTabFifo, fifoResult)
             
             self.calculationProgressBar["value"] = 100* 2/6
             self.calculationProgressBar.update()  
             startTime = time.clock()
             lifoResult = algorithmLIFO(copy.deepcopy(jobList))
-            strTime = strTime+"LIFO: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
-            #createGanttChart(self.frTabLifo, lifoResult)
+            strTime = strTime+"LIFO: "+ str(round(time.clock() - startTime, 4))+" sec.\nCmax="+ str(max([j.endTime for j in lifoResult]))+"\n"
+            createGanttChart(self.frTabLifo, lifoResult)
 
             self.calculationProgressBar["value"] = 100* 3/6
             self.calculationProgressBar.update()  
             startTime = time.clock()
             resultLPT = algorithmLPT(copy.deepcopy(jobList))
-            strTime = strTime+"LPT: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
-            #createGanttChart(self.frTabLPT, resultLPT)
+            strTime = strTime+"LPT: "+ str(round(time.clock() - startTime, 4))+" sec.\nCmax="+ str(max([j.endTime for j in resultLPT]))+"\n"
+            createGanttChart(self.frTabLPT, resultLPT)
             
             self.calculationProgressBar["value"] = 100* 4/6
             self.calculationProgressBar.update()
             startTime = time.clock()
             self.resultSPT = algorithmSPT(copy.deepcopy(jobList))
-            strTime = strTime+"SPT: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
+            strTime = strTime+"SPT: "+ str(round(time.clock() - startTime, 4))+" sec.\nCmax="+ str(max([j.endTime for j in self.resultSPT]))+"\n"
             createGanttChart(self.frTabSPT, self.resultSPT)
 
             self.calculationProgressBar["value"] = 100* 5/6
             self.calculationProgressBar.update() 
             startTime = time.clock()
-            #optResult = optimalSolution(copy.deepcopy(jobList))
-            strTime = strTime+"OPTIM: "+ str(round(time.clock() - startTime, 4))+" sec.\n"
-            #createGanttChart(self.frTabOptSol, optResult)
+            optResult = optimalSolution(copy.deepcopy(jobList))
+            strTime = strTime+"OPTIM: "+ str(round(time.clock() - startTime, 4))+" sec.\nCmax="+ str(max([j.endTime for j in optResult]))+"\n"
+            createGanttChart(self.frTabOptSol, optResult)
             
             self.lblCalculationsTime.configure(text=strTime)
 
@@ -216,6 +217,7 @@ class GuiMain(form.Frame):
 
             msg.showinfo(STRGS['OK'], "Calculations finished!")
 
+            #TODO: choosing if you want graphs, and turning off optimal solution if data bigger than 10/10
         else:
             msg.showerror(STRGS['ERR_ILLEGAL'], STRGS['MSG_ERR_EMPTY_VAL'])
 
@@ -247,7 +249,7 @@ class GuiMain(form.Frame):
         data = [0, maxC]
         exportDataCSV.append(data)
 
-        iterations = 100
+        iterations = 1000
         for i in range(1, iterations+1):         
             tmpResult = randomSolutionByPriority(copy.deepcopy(self.resultSPT))
             x = [job.endTime for job in tmpResult]
@@ -264,7 +266,86 @@ class GuiMain(form.Frame):
         except Exception as err:
             msg.showerror(STRGS['ERR'], err)
 
-        createHistogram(self.frTabSPTRnd, exportDataCSV)
+        createScatter(self.frTabScatter, copy.deepcopy(exportDataCSV))
+        createHistogram(self.frTabHistogram, copy.deepcopy(exportDataCSV))
+        msg.showinfo(STRGS['OK'], "Calculations finished!")
+
+    def incrementPriority(self):
+        """Scientific function that dynamically add new priority if previous result was better"""
+        
+        if len(machinesList) == 0 or len(itinerariesList) ==0:
+            msg.showerror(STRGS['ERR_ILLEGAL'], STRGS['MSG_ERR_EMPTY_VAL'])
+            return
+
+        arrOfJobsLength = []
+        for itinObj in itinerariesList:
+            wholeItinerary = [job for job in self.randomResult if job.itinerary == itinObj.name]
+            wholeItinerary.sort(key=lambda x: x.endTime)
+            arrOfJobsLength.append(wholeItinerary[-1].endTime)
+
+        denominator = sum(arrOfJobsLength)
+        maxC = max(arrOfJobsLength)
+
+        for itinObj in itinerariesList:
+            wholeItinerary = [job for job in self.randomResult if job.itinerary == itinObj.name]
+            wholeItinerary.sort(key=lambda x: x.endTime)
+            for j in wholeItinerary:
+                j.completed = False
+                p = wholeItinerary[-1].endTime/denominator #cmax/sum(cmax of all itinieraries)
+                j.priority = round(p, 3)
+                
+        exportDataCSV = []
+        data = [0, maxC]
+        exportDataCSV.append(data)
+        theSmallest = []
+        iterations = 1000
+        prevBestSolution = maxC
+        tmpResult = copy.deepcopy(self.randomResult)
+        for i in range(1, iterations+1):
+            if maxC < prevBestSolution:
+                arrOfJobsLength = []
+                
+                for itinObj in itinerariesList:
+                    wholeItinerary = [job for job in tmpResult if job.itinerary == itinObj.name]
+                    wholeItinerary.sort(key=lambda x: x.endTime)
+                    arrOfJobsLength.append(wholeItinerary[-1].endTime)
+
+                denominator = sum(arrOfJobsLength)
+                maxC = max(arrOfJobsLength)
+
+                for itinObj in itinerariesList:
+                    wholeItinerary = [job for job in tmpResult if job.itinerary == itinObj.name]
+                    wholeItinerary.sort(key=lambda x: x.endTime)
+                    for j in wholeItinerary:
+                        j.completed = False
+                        j.startTime = 0
+                        p = wholeItinerary[-1].endTime/denominator #cmax/sum(cmax of all itinieraries)
+                        j.priority = round(p, 3)
+                prevBestSolution = maxC    
+                theSmallest = copy.deepcopy(tmpResult) 
+            else:
+                for j in tmpResult:
+                    j.completed = False
+                    j.startTime = 0
+            tmpResult = randomSolutionByPriority(tmpResult)
+            x = [job.endTime for job in tmpResult]
+            maxC = max(x)
+            data = [i, maxC]
+
+            
+            exportDataCSV.append(data)
+            self.rndProgressBar["value"] = 100 * i/iterations
+            self.rndProgressBar.update()
+
+        try:
+            with open('M'+str(len(machinesList))+' X J'+str(len(itinerariesList))+' ExportedData Iterations'+str(iterations)+'.csv', 'w') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows(exportDataCSV)
+        except Exception as err:
+            msg.showerror(STRGS['ERR'], err)
+
+        createScatter(self.frTabScatter, copy.deepcopy(exportDataCSV))
+        createHistogram(self.frTabHistogram, copy.deepcopy(exportDataCSV))
         msg.showinfo(STRGS['OK'], "Calculations finished!")
 
     def dataFileImport(self):
@@ -278,7 +359,6 @@ class GuiMain(form.Frame):
                 return
 
         savePath = askopenfilename(defaultextension=".json", filetypes =(("JSON files",".json"),("All files","*.*")))
-        #savePath = "przypadek1.json"
 
         if not isStringNotBlank(savePath):
             return              #cancelled?  stop this madness now
@@ -364,6 +444,7 @@ class GuiMain(form.Frame):
 
             #msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_IMPORTED']) #notify
             #user that succeded
+            #TODO: move errors string to globaldata file
  
         except ValueError as err:
             msg.showerror(STRGS['ERR'], err)
@@ -467,4 +548,4 @@ class GuiMain(form.Frame):
             machinesRandomList.clear()
             itinerariesRandomList.clear()
 
-#    #TODO: favicon
+    #TODO: favicon

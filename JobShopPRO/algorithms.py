@@ -481,6 +481,145 @@ def randomSolutionByPriority(aJobsList):
         time = SortedDict(time) #chronological order
     return jobsListToExport
 
+def randomSolution(aJobsList):
+    """
+    Choose jobs in random order for job shop problem (worst case scenario)
+    """
+
+    time = {}
+    waitingOperations = {}
+    currentTimeOnMachines = {}
+    jobsListToExport = []
+
+    #initialize machines times and get first 
+    #waiting operations for each machine
+    global machinesList
+    for machine in machinesList:
+        waitingOperations[machine.name] = [job for job in aJobsList if job.machine == machine.name and job.idOperation == 1]
+        currentTimeOnMachines[machine.name] = 0
+
+    time[0] = waitingOperations
+
+    for keyMach, operations in waitingOperations.items():
+        #for each waiting task in front of machine set time to 0, 
+        #update properties
+        if len(operations):
+            r = random.randint(0, len(operations) - 1)
+            operations[r].startTime = 0
+            operations[r].completed = True
+
+            #push task to production, and create new event to stop at, 
+            #on ending time, then update machines time
+            jobsListToExport.append(operations[r])
+            currentTimeOnMachines[keyMach] = operations[r].getEndTime()
+            time[currentTimeOnMachines[keyMach]] = {}
+
+    while len(jobsListToExport) != len(aJobsList):
+        for t, operations in time.items():
+            #doesnt really matter the order if you choose random operation from it
+            operations = getWaitingOperationsLPT(aJobsList, float(t))
+
+            for keyMach, tasks in operations.items():
+                if len(tasks):
+                    #if more than 1 operation in queue, choose the random one
+                    r = random.randint(0, len(tasks) - 1) 
+                    if float(t) < currentTimeOnMachines[tasks[r].machine]:
+                        continue               
+                    tasks[r].startTime = float(t)
+                    tasks[r].completed = True
+
+                    jobsListToExport.append(tasks[r])
+                    
+                    currentTimeOnMachines[keyMach] = tasks[r].getEndTime()
+                    time[currentTimeOnMachines[keyMach]] = {}  
+
+            del time[t]
+            break
+        time = SortedDict(time) #chronological order
+    return jobsListToExport
+
+def algorithmPriority(aJobsList):
+    """
+    Priority heuristic algorithm for job shop problem
+    """
+
+    time = {}
+    waitingOperations = {}
+    currentTimeOnMachines = {}
+    jobsListToExport = []
+
+    #initialize machines times and get first 
+    #waiting operations for each machine
+    global machinesList
+    for machine in machinesList:
+        waitingOperations[machine.name] = [job for job in aJobsList if job.machine == machine.name and job.idOperation == 1]
+        waitingOperations[machine.name].sort(key=lambda j: j.priority)
+        currentTimeOnMachines[machine.name] = 0
+
+    time[0] = waitingOperations
+
+    for keyMach, operations in waitingOperations.items():
+        #for each waiting task in front of machine set time to 0, update
+        #properties
+        if len(operations):
+
+            operations[0].startTime = 0
+            operations[0].completed = True
+
+            #push task to production, and create new event to stop at, at
+            #on ending time, then update machines time
+            jobsListToExport.append(operations[0])
+            currentTimeOnMachines[keyMach] = operations[0].getEndTime()
+            time[currentTimeOnMachines[keyMach]] = {}
+
+    while len(jobsListToExport) != len(aJobsList):
+        for t, operations in time.items():
+            operations = getWaitingOperationsPriority(aJobsList, float(t))
+
+            for keyMach, tasks in operations.items():
+                if len(tasks):
+                    if float(t) < currentTimeOnMachines[tasks[0].machine]:
+                        continue
+
+                    tasks[0].startTime = float(t)
+                    tasks[0].completed = True
+
+                    jobsListToExport.append(tasks[0])
+                    
+                    currentTimeOnMachines[keyMach] = tasks[0].getEndTime()
+                    time[currentTimeOnMachines[keyMach]] = {}  
+
+            del time[t]
+            break
+
+        time = SortedDict(time) #chronological order
+
+    return jobsListToExport
+
+def getWaitingOperationsPriority(aJobsList, time):
+    """Get waiting jobs at current time in the longest duration order"""
+
+    incomingOperations = {}
+    assignedJobsForMachine = []
+
+    global machinesList
+    for mach in machinesList:
+        assignedJobsForMachine = [job for job in aJobsList if job.completed == False and job.machine == mach.name]
+        incomingOperations[mach.name] = []
+
+        for j in assignedJobsForMachine:
+            if j.idOperation == 1:
+                incomingOperations[mach.name].append(j)
+            else:
+                previousTask = [job for job in aJobsList if job.itinerary == j.itinerary and job.idOperation == j.idOperation - 1 and job.endTime <= time ]
+                if len(previousTask):
+                    if previousTask[0].completed:
+                        incomingOperations[mach.name].append(j)
+        #sort added jobs by duration
+        incomingOperations[mach.name].sort(key=lambda j: j.priority)
+
+    return incomingOperations
+
 def optimalSolution(aJobList):
     """
     Solves job problem with google optimization tools
@@ -563,9 +702,9 @@ def optimalSolution(aJobList):
 
             for j in range(0, seq_size):
                 t = seq.Interval(sequence[j])
-                name_arr = list(t.Name())
+                name_arr = str(t.Name())
                 
-                x = [job for job in aJobList if int(name_arr[4]) == job.idItinerary - 1 and int(name_arr[6]) == job.idOperation - 1 and job.machineID == i]
+                x = [job for job in aJobList if int(name_arr.split("_")[1]) == job.idItinerary - 1 and int(name_arr.split("_")[2]) == job.idOperation - 1 and job.machineID == i]
                 x[0].startTime = collector.Value(0, t.StartExpr().Var())
                 x[0].endTime = collector.Value(0, t.EndExpr().Var())
                 jobsListToExport.append(x[0])

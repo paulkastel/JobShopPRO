@@ -110,7 +110,7 @@ def createHistogram(aFrame, aYXList):
     #y-axis labels for histogram
     plt.ylabel('Amount of iterations', color='r')
     plt.tick_params('y', colors='r')
-    ax.set_yticks(np.arange(start=0, stop=(y.count(max(set(y), key=y.count))+5), step=2))
+    #ax.set_yticks(np.arange(start=0, stop=(y.count(max(set(y), key=y.count))+5)))
     
     #second chart
     ax2 =plt.twinx()
@@ -124,6 +124,50 @@ def createHistogram(aFrame, aYXList):
     
     chartFig.tight_layout()
 
+    canva = FigureCanvasTkAgg(chartFig, aFrame)     #adding chart to frame
+    canva.show()
+    canva.get_tk_widget().pack(side=form.TOP, fill =form.BOTH, expand=True)
+
+
+def createScatter(aFrame, aYXList):
+    """Draws histogram with Gaussian function in aFrame"""
+
+    for widget in aFrame.winfo_children():
+        widget.destroy()    #clear previous charts
+
+    x=[]
+    y=[]
+    ymin=[]
+    xmin=[]
+    defaultVal = aYXList[0][1]
+
+    chartFig, ax = plt.subplots()
+    plt.title("Result of scheduling in iterations\n Default Cmax is "+str(defaultVal)+", Iterations: "+str(len(aYXList)-1))   
+    minVal = defaultVal
+    ymin.append(defaultVal)
+    xmin.append(0)
+    aYXList.remove(aYXList[0])
+
+    for i, data in enumerate(aYXList):
+        x.append(data[0])
+        y.append(data[1])
+        if (y[i] <=defaultVal):
+            ymin.append(y[i])
+            xmin.append(x[i])
+            defaultVal = y[i]
+
+   
+    plt.scatter(x, y, label='skitscat', color='b', s=1)
+    plt.xlabel("Iterations")
+    plt.ylabel('Cmax')
+    plt.ylim((min(y)-5, max(y)+5))
+
+    #second chart
+    ax2 =plt.twinx()
+    plt.plot(xmin, ymin, color='green')
+    plt.ylim((min(y)-5, max(y)+5))
+    plt.ylabel("Minimal values", color='green')
+    chartFig.tight_layout()
     canva = FigureCanvasTkAgg(chartFig, aFrame)     #adding chart to frame
     canva.show()
     canva.get_tk_widget().pack(side=form.TOP, fill =form.BOTH, expand=True)
