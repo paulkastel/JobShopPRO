@@ -26,7 +26,6 @@ def prepareJobs():
                     break
     return jobsList
 
-
 def algorithmSPT(aJobsList):
     """
     SPT/SJF heuristic algorithm for job shop problem
@@ -365,63 +364,6 @@ def getWaitingOperationsLIFO(aJobsList, aTime, aRecentOp):
                     aRecentOp[mach.name].insert(0, j)
 
     return aRecentOp
-
-def randomSolution(aJobsList):
-    """
-    Choose jobs in random order for job shop problem (worst case scenario)
-    """
-
-    time = {}
-    waitingOperations = {}
-    currentTimeOnMachines = {}
-    jobsListToExport = []
-
-    #initialize machines times and get first 
-    #waiting operations for each machine
-    global machinesList
-    for machine in machinesList:
-        waitingOperations[machine.name] = [job for job in aJobsList if job.machine == machine.name and job.idOperation == 1]
-        currentTimeOnMachines[machine.name] = 0
-
-    time[0] = waitingOperations
-
-    for keyMach, operations in waitingOperations.items():
-        #for each waiting task in front of machine set time to 0, 
-        #update properties
-        if len(operations):
-            r = random.randint(0, len(operations) - 1)
-            operations[r].startTime = 0
-            operations[r].completed = True
-
-            #push task to production, and create new event to stop at, 
-            #on ending time, then update machines time
-            jobsListToExport.append(operations[r])
-            currentTimeOnMachines[keyMach] = operations[r].getEndTime()
-            time[currentTimeOnMachines[keyMach]] = {}
-
-    while len(jobsListToExport) != len(aJobsList):
-        for t, operations in time.items():
-            #doesnt really matter the order if you choose random operation from it
-            operations = getWaitingOperationsLPT(aJobsList, float(t))
-
-            for keyMach, tasks in operations.items():
-                if len(tasks):
-                    #if more than 1 operation in queue, choose the random one
-                    r = random.randint(0, len(tasks) - 1) 
-                    if float(t) < currentTimeOnMachines[tasks[r].machine]:
-                        continue               
-                    tasks[r].startTime = float(t)
-                    tasks[r].completed = True
-
-                    jobsListToExport.append(tasks[r])
-                    
-                    currentTimeOnMachines[keyMach] = tasks[r].getEndTime()
-                    time[currentTimeOnMachines[keyMach]] = {}  
-
-            del time[t]
-            break
-        time = SortedDict(time) #chronological order
-    return jobsListToExport
 
 def randomSolutionByPriority(aJobsList):
     """

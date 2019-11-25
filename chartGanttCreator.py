@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import matplotlib.ticker as ticker
 import tkinter as form
@@ -70,7 +70,7 @@ def createGanttChart(aFrame, aJobsList):
 
     ax.grid(True)
     canva = FigureCanvasTkAgg(chartFig, aFrame)     #adding chart to frame
-    canva.show()
+    canva.draw()
     canva.get_tk_widget().pack(side=form.TOP, fill =form.BOTH, expand=True)
 
 
@@ -125,7 +125,7 @@ def createHistogram(aFrame, aYXList):
     chartFig.tight_layout()
 
     canva = FigureCanvasTkAgg(chartFig, aFrame)     #adding chart to frame
-    canva.show()
+    canva.draw()
     canva.get_tk_widget().pack(side=form.TOP, fill =form.BOTH, expand=True)
 
 
@@ -169,5 +169,5 @@ def createScatter(aFrame, aYXList):
     plt.ylabel("Minimal values", color='green')
     chartFig.tight_layout()
     canva = FigureCanvasTkAgg(chartFig, aFrame)     #adding chart to frame
-    canva.show()
+    canva.draw()
     canva.get_tk_widget().pack(side=form.TOP, fill =form.BOTH, expand=True)
