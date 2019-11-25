@@ -18,4 +18,20 @@ Job Shop PRO is part for master thesis in AGH University.
 * Easy input of data
 * Colorful Gantt charts
 
+## HOW TO INSTALL:
+### Requirements:
+* At least installed python 3.7.4
+* Dependencies: sortedcollections, ortools, matplotlib, scipy
+
+### How to install and run application:
+**Use commands:**
+* python3 -m pip install sortedcollections
+* python3 -m pip install ortools
+* python3 -m pip install matplotlib
+* python3 -m pip install scipy
+
+**Run:**
+* python3 root.py
+
+
 **Try it know and if you have any question or suggestion contact me via [website](http://www.kastelik.com.pl/)**

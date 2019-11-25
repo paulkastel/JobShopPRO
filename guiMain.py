@@ -28,7 +28,7 @@ class GuiMain(form.Frame):
 
         master.title(STRGS['TITLE_PROGRAM'])
         #center window in the middle of the screen
-        master.geometry("%dx%d+%d+%d" % (600,500, int(master.winfo_screenwidth() / 2 - 600 / 2), int(master.winfo_screenheight() / 2 - 500 / 2)))
+        master.geometry("%dx%d+%d+%d" % (600,500, int(master.winfo_screenwidth() / 2 - 700 / 2), int(master.winfo_screenheight() / 2 - 600 / 2)))
         master.minsize(width=600, height=450)
 
         menuBar = form.Menu(master)
