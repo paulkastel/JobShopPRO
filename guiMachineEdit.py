@@ -13,7 +13,7 @@ class GuiMachineEdit(form.Toplevel):
         self.editedItemIndex = aIndex
         self.title(STRGS['EDIT'] + " " + str(machinesList[self.editedItemIndex].name))
         #center window in the middle of the screen
-        self.geometry("%dx%d+%d+%d" % (250,100, int(self.winfo_screenwidth() / 2 - 250 / 2), int(self.winfo_screenheight() / 2 - 100 / 2)))
+        self.geometry("%dx%d+%d+%d" % (350,130, int(self.winfo_screenwidth() / 2 - 350 / 2), int(self.winfo_screenheight() / 2 - 130 / 2)))
         self.resizable(False, False)
 
         frMachineEdit = ttk.LabelFrame(self, text=STRGS['EDIT'])

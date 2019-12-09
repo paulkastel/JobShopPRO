@@ -14,12 +14,12 @@ class GuiMachine(form.Frame):
         self.master = master
         self.master.title(STRGS['MACHS'])
         #center window in the middle of the screen
-        self.master.geometry("%dx%d+%d+%d" % (400,400, int(master.winfo_screenwidth() / 2 - 400 / 2), int(master.winfo_screenheight() / 2 - 400 / 2)))
+        self.master.geometry("%dx%d+%d+%d" % (590,450, int(master.winfo_screenwidth() / 2 - 590 / 2), int(master.winfo_screenheight() / 2 - 450 / 2)))
         self.master.resizable(False, False)
 
         #first label frame
         frMachines = ttk.LabelFrame(master, text=STRGS['MACHS'])
-        frMachines.grid(column = 0, row =0, padx=5, pady=5)
+        frMachines.grid(column = 0, row =0, padx=8, pady=8)
         
         scrollbar = ttk.Scrollbar(frMachines)
         self.lboxMachineList = form.Listbox(frMachines, width=30, height=20, yscrollcommand=scrollbar.set, selectmode=form.SINGLE)

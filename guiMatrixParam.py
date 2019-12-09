@@ -12,7 +12,7 @@ class GuiMatrixParam(form.Toplevel):
 
         self.title(STRGS['ENTER_MATRIX_DATA'])
         #center window in the middle of the screen
-        self.geometry("%dx%d+%d+%d" % (250,140, int(master.winfo_screenwidth() / 2 - 250 / 2), int(master.winfo_screenheight() / 2 - 140 / 2)))
+        self.geometry("%dx%d+%d+%d" % (280,140, int(master.winfo_screenwidth() / 2 - 280 / 2), int(master.winfo_screenheight() / 2 - 140 / 2)))
         self.resizable(False, False)
 
         frInput = ttk.LabelFrame(self, text=STRGS['ENTER_MATRIX_DATA'])
