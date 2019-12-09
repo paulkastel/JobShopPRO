@@ -483,7 +483,7 @@ class GuiMain(form.Frame):
             savePath = asksaveasfilename(initialfile=fileName, defaultextension=".json", filetypes =(("JSON files", ".json"),("All files", "*.*")))  #open save file window
             
             if savePath != "":
-                with open(savePath, 'w', encoding='utf-8') as outfile:
+                with open(savePath, 'w', encoding='utf-8', errors='ignore') as outfile:
                     json.dump(exportData, outfile, indent=4)    #put serialzed json data in outfile saved in savePath directory
                 msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_EXPORTED'])
         except Exception as err:
@@ -539,7 +539,7 @@ class GuiMain(form.Frame):
                 if savePath != "":
                     if not os.path.exists(os.path.dirname(savePath)):
                         os.makedirs(os.path.dirname(savePath))
-                    with open(savePath, 'w', encoding='utf-8') as outfile:
+                    with open(savePath, 'w', encoding='utf-8', errors='ignore') as outfile:
                         json.dump(exportData, outfile, indent=4)    #put serialzed json data in outfile saved in savePath directory
                     msg.showinfo(STRGS['OK'], STRGS['MSG_OK_FILE_EXPORTED'])
             except Exception as err:
