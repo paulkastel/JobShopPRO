@@ -1,0 +1,16 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    //To open in VS Code Open JobShopPRO folder and run
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: JobShopPRO",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceRoot}/root.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}
