@@ -11,7 +11,7 @@ class GuiTaskNew(form.Toplevel):
         form.Toplevel.__init__(self, master)
 
         self.title(STRGS['TITLE_NEW_TASK_INITERARY'])
-        self.geometry("%dx%d+%d+%d" % (200,150, int(self.winfo_screenwidth() / 2 - 200 / 2), int(self.winfo_screenheight() / 2 - 150 / 2)))
+        self.geometry("%dx%d+%d+%d" % (350,200, int(self.winfo_screenwidth() / 2 - 350 / 2), int(self.winfo_screenheight() / 2 - 200 / 2)))
         self.resizable(False, False)
 
         frTaskNew = ttk.LabelFrame(self, text=STRGS['NEW_TASK'])

@@ -14,7 +14,7 @@ class GuiItineraryNew(form.Toplevel):
         
         self.editedItemIndex = aIndex
         self.title(STRGS['TITLE_NEW_ITINERARIES'])
-        self.geometry("%dx%d+%d+%d" % (400,350, int(self.winfo_screenwidth() / 2 - 400 / 2), int(self.winfo_screenheight() / 2 - 350 / 2)))
+        self.geometry("%dx%d+%d+%d" % (600,400, int(self.winfo_screenwidth() / 2 - 600 / 2), int(self.winfo_screenheight() / 2 - 400 / 2)))
         self.resizable(False, False)
 
         ttk.Label(self, text=STRGS['ITINERARY_NAME']).grid(column=0, row=0, padx=5, pady=10, sticky=form.N)

@@ -12,7 +12,7 @@ class GuiItinerary(form.Frame):
         form.Frame.__init__(self, master)
 
         master.title(STRGS['ITINERARIES'])
-        master.geometry("%dx%d+%d+%d" % (350,400, int(master.winfo_screenwidth() / 2 - 350 / 2), int(master.winfo_screenheight() / 2 - 400 / 2)))
+        master.geometry("%dx%d+%d+%d" % (500,500, int(master.winfo_screenwidth() / 2 - 500 / 2), int(master.winfo_screenheight() / 2 - 500 / 2)))
         master.resizable(False, False)
 
         frItineraries = ttk.LabelFrame(master, text=STRGS['ITINERARIES'])
